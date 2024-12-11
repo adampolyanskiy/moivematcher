@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Options;
 using MovieMatcher.Backend;
 using MovieMatcher.Backend.Services;
-using TMDbLib.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +13,7 @@ builder.Services.AddSingleton(sp =>
 builder.Services.AddSignalR();
 
 builder.Services.AddSingleton<ISessionManager, SessionManager>();
+builder.Services.AddSingleton<IMovieService, TmdbApiService>();
 
 var app = builder.Build();
 

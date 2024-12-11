@@ -1,4 +1,6 @@
 ﻿using EyeRide.FMS.Model.Infrastructure.Exceptions;
+using Microsoft.Extensions.Options;
+using MovieMatcher.Backend;
 using MovieMatcher.Backend.Models;
 using MovieMatcher.Backend.Services;
 using TMDbLib.Client;
@@ -12,9 +14,10 @@ public class TmdbApiService : IMovieService
     private readonly TMDbClient _client;
     private readonly ILogger<TmdbApiService> _logger;
 
-    public TmdbApiService(TMDbClient client, ILogger<TmdbApiService> logger)
+    public TmdbApiService(ILogger<TmdbApiService> logger, IOptions<AppSettings> appSettings)
     {
-        _client = client;
+        var apiKey = appSettings.Value.TMDbSettings.ApiKey;
+        _client = new TMDbClient(apiKey);
         _logger = logger;
     }
 
