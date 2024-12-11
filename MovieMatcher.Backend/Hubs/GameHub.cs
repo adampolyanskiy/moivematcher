@@ -21,10 +21,10 @@ public class GameHub : Hub
             throw new HubException("Session not found.");
         }
 
-        var movies = await _movieService.FetchMoviesAsync();
+        var movies = await _movieService.SearchMovies();
 
         // Populate the session with movies
-        session.Movies = new Queue<Movie>(movies);
+        session.Movies = new Queue<Movie>(movies.Results);
 
         // Send the first movie to all clients
         if (session.Movies.TryDequeue(out var movie))
