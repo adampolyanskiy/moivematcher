@@ -1,5 +1,5 @@
 ﻿using System.Collections.Concurrent;
-using MovieMatcher.Backend.Models;
+using MovieMatcher.Backend.Hubs;
 using MovieMatcher.Backend.Services;
 
 public class SessionManager : ISessionManager

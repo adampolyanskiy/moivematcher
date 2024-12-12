@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using MovieMatcher.Backend.Models;
 using MovieMatcher.Backend.Services;
+using SessionOptions = MovieMatcher.Backend.Hubs.SessionOptions;
 
 public class GameHub : Hub
 {
@@ -12,7 +13,7 @@ public class GameHub : Hub
         _sessionManager = sessionManager;
         _movieService = movieService;
     }
-    
+
     public async Task StartSwiping(string sessionId)
     {
         var session = _sessionManager.GetSession(sessionId);
@@ -21,12 +22,22 @@ public class GameHub : Hub
             throw new HubException("Session not found.");
         }
 
-        var movies = await _movieService.SearchMovies();
+        if (session.Options == null)
+        {
+            throw new HubException("Session options are not configured.");
+        }
 
-        // Populate the session with movies
+        var searchParams = new SearchMoviesParams
+        {
+            IncludeAdult = session.Options.IncludeAdult,
+            Year = session.Options.Year,
+            GenreIds = session.Options.GenreIds
+        };
+
+        var movies = await _movieService.SearchMovies(searchParams);
+
         session.Movies = new Queue<Movie>(movies.Results);
 
-        // Send the first movie to all clients
         if (session.Movies.TryDequeue(out var movie))
         {
             await Clients.Group(sessionId).SendAsync("ReceiveMovie", movie);
@@ -70,18 +81,23 @@ public class GameHub : Hub
         }
     }
 
-    public async Task<string> CreateSession()
+    public async Task<string> CreateSession(SessionOptions options)
     {
-        // Generate a secure session ID
         var sessionId = Guid.NewGuid().ToString();
         _sessionManager.CreateSession(sessionId);
 
-        // Optionally, add the creator to the session immediately
         var session = _sessionManager.GetSession(sessionId);
-        session?.ConnectedUsers.Add(Context.ConnectionId);
+        if (session == null)
+        {
+            throw new HubException("Failed to create session.");
+        }
+
+        session.Options = options;
+
+        session.ConnectedUsers.Add(Context.ConnectionId);
         await Groups.AddToGroupAsync(Context.ConnectionId, sessionId);
 
-        return sessionId; // Return the session ID to the client
+        return sessionId;
     }
 
     public async Task JoinSession(string sessionId)

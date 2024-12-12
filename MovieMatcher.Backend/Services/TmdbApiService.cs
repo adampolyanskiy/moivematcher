@@ -71,13 +71,14 @@ public class TmdbApiService : IMovieService
 
             if (parameters != null)
             {
-                var genres = parameters.Genres.Select(g => new TMDbGenre { Id = g.Id, Name = g.Name })
-                    .ToArray();
+                if (parameters.Year.HasValue)
+                {
+                    query = query.WhereAnyReleaseDateIsInYear(parameters.Year.Value);
+                }
 
                 result = await query
                     .IncludeAdultMovies(parameters.IncludeAdult)
-                    .WherePrimaryReleaseIsInYear(parameters.Year)
-                    .IncludeWithAnyOfGenre(genres)
+                    .IncludeWithAnyOfGenre(parameters.GenreIds)
                     .Query(parameters.Page);
             }
             else
