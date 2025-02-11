@@ -17,6 +17,6 @@ builder.Services.AddSingleton<IMovieService, TmdbApiService>();
 
 var app = builder.Build();
 
-app.MapHub<GameHub>("/gameHub");
+app.MapHub<MovieMatcherHub>("/movieMatcherHub");
 
 app.Run();

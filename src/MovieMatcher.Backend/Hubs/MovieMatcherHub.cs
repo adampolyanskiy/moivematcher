@@ -3,12 +3,12 @@ using MovieMatcher.Backend.Models;
 using MovieMatcher.Backend.Services;
 using SessionOptions = MovieMatcher.Backend.Models.SessionOptions;
 
-public class GameHub : Hub
+public class MovieMatcherHub : Hub
 {
     private readonly ISessionManager _sessionManager;
     private readonly IMovieService _movieService;
 
-    public GameHub(ISessionManager sessionManager, IMovieService movieService)
+    public MovieMatcherHub(ISessionManager sessionManager, IMovieService movieService)
     {
         _sessionManager = sessionManager;
         _movieService = movieService;
