@@ -1,4 +1,4 @@
-﻿namespace MovieMatcher.Backend.Hubs;
+﻿namespace MovieMatcher.Backend.Models;
 
 public class SessionOptions
 {

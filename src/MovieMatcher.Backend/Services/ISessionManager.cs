@@ -1,4 +1,4 @@
-﻿using MovieMatcher.Backend.Hubs;
+﻿using MovieMatcher.Backend.Models;
 
 namespace MovieMatcher.Backend.Services;
 

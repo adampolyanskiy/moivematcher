@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using MovieMatcher.Backend.Models;
 using MovieMatcher.Backend.Services;
-using SessionOptions = MovieMatcher.Backend.Hubs.SessionOptions;
+using SessionOptions = MovieMatcher.Backend.Models.SessionOptions;
 
 public class GameHub : Hub
 {
