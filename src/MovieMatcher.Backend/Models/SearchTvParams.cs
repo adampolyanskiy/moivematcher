@@ -2,7 +2,7 @@
 
 public class SearchTvParams
 {
-    public int Year { get; set; }
-    public IEnumerable<Genre> Genres { get; set; }
-    public int Page { get; set; } = 1;
+    public int Year { get; init; }
+    public required IEnumerable<Genre> Genres { get; init; }
+    public int Page { get; init; } = 1;
 }

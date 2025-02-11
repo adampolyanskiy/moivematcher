@@ -2,6 +2,6 @@
 
 public class Match
 {
-    public string MovieId { get; set; }
-    public string MatchedBy { get; set; }
+    public required string MovieId { get; set; }
+    public required string MatchedBy { get; set; }
 }

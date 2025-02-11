@@ -2,8 +2,8 @@
 
 public class SearchResponse<T>
 {
-    public int Page { get; set; }
-    public List<T> Results { get; set; }
-    public int TotalPages { get; set; }
-    public int TotalResults { get; set; }
+    public int Page { get; init; }
+    public required List<T> Results { get; init; }
+    public int TotalPages { get; init; }
+    public int TotalResults { get; init; }
 }

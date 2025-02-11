@@ -2,8 +2,8 @@
 
 public class SearchMoviesParams
 {
-    public bool IncludeAdult { get; set; }
-    public int? Year { get; set; }
-    public required IEnumerable<int> GenreIds { get; set; }
-    public int Page { get; set; }
+    public bool IncludeAdult { get; init; }
+    public int? Year { get; init; }
+    public required IEnumerable<int> GenreIds { get; init; }
+    public int Page { get; init; }
 }

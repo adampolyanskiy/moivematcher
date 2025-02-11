@@ -2,7 +2,7 @@
 
 public class SessionOptions
 {
-    public bool IncludeAdult { get; set; }
-    public int? Year { get; set; }
-    public IEnumerable<int> GenreIds { get; set; }
+    public bool IncludeAdult { get; init; }
+    public int? Year { get; init; }
+    public required IEnumerable<int> GenreIds { get; init; }
 }
