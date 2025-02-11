@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace EyeRide.FMS.Model.Infrastructure.Exceptions;
+﻿namespace MovieMatcher.Backend.Exceptions;
 
 /// <summary>
 /// Represents the base exception for all domain-related errors in the service layer.

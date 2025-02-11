@@ -3,7 +3,7 @@ using MovieMatcher.Backend.Models;
 
 namespace MovieMatcher.Backend.Services;
 
-public class SessionManager : ISessionManager
+public class InMemorySessionManager : ISessionManager
 {
     private readonly ConcurrentDictionary<string, Session> _sessions = new();
 

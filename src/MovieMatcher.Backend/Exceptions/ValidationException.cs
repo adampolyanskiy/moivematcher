@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace EyeRide.FMS.Model.Infrastructure.Exceptions;
+﻿namespace MovieMatcher.Backend.Exceptions;
 
 /// <summary>
 /// Thrown when validation rules for a request or entity are not satisfied.

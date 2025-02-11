@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace EyeRide.FMS.Model.Infrastructure.Exceptions;
+﻿namespace MovieMatcher.Backend.Exceptions;
 
 /// <summary>
 /// Thrown when an operation fails due to reasons unrelated to validation,

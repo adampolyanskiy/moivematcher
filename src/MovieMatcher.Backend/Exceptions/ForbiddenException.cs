@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace EyeRide.FMS.Model.Infrastructure.Exceptions;
+﻿namespace MovieMatcher.Backend.Exceptions;
 
 /// <summary>
 /// Thrown when access to a resource is forbidden, even if the user is authenticated.

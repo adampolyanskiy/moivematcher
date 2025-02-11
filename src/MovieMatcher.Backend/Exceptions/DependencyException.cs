@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace EyeRide.FMS.Model.Infrastructure.Exceptions;
+﻿namespace MovieMatcher.Backend.Exceptions;
 
 /// <summary>
 /// Thrown when an external dependency fails or is unavailable.

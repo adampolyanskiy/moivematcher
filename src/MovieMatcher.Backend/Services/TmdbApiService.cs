@@ -1,13 +1,13 @@
-﻿using EyeRide.FMS.Model.Infrastructure.Exceptions;
-using Microsoft.Extensions.Options;
-using MovieMatcher.Backend;
+﻿using Microsoft.Extensions.Options;
+using MovieMatcher.Backend.Exceptions;
 using MovieMatcher.Backend.Models;
-using MovieMatcher.Backend.Services;
 using TMDbLib.Client;
 using TMDbLib.Objects.General;
 using TMDbLib.Objects.Search;
 using Genre = MovieMatcher.Backend.Models.Genre;
 using TMDbGenre = TMDbLib.Objects.General.Genre;
+
+namespace MovieMatcher.Backend.Services;
 
 public class TmdbApiService : IMovieService
 {
