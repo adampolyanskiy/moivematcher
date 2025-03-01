@@ -1,11 +1,12 @@
 ﻿using MovieMatcher.Backend.Models;
+using SessionOptions = MovieMatcher.Backend.Models.SessionOptions;
 
 namespace MovieMatcher.Backend.Services;
 
 public interface ISessionManager
 {
-    Session CreateSession(string sessionId);
-    Session? GetSession(string sessionId);
-    void RemoveSession(string sessionId);
-    IEnumerable<Session> GetSessionsWithUser(string connectionId);
+    Session Create(SessionOptions options);
+    Session? Get(string sessionId);
+    void Remove(string sessionId);
+    IEnumerable<Session> GetByConnectionId(string connectionId);
 }
