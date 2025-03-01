@@ -156,8 +156,10 @@ public class MovieMatcherHub(
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         logger.LogDebug("User {ConnectionId} disconnected. Cleaning up their session memberships", Context.ConnectionId);
+        
+        var session = sessionManager.GetByConnectionId(Context.ConnectionId);
 
-        foreach (var session in sessionManager.GetByConnectionId(Context.ConnectionId))
+        if (session != null)
         {
             session.ConnectionIds.Remove(Context.ConnectionId);
             if (session.ConnectionIds.Count == 0)

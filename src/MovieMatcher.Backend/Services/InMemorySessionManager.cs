@@ -24,6 +24,6 @@ public class InMemorySessionManager : ISessionManager
     public void Remove(string sessionId) =>
         _sessions.TryRemove(sessionId, out _);
 
-    public IEnumerable<Session> GetByConnectionId(string connectionId) =>
-        _sessions.Values.Where(s => s.ConnectionIds.Contains(connectionId));
+    public Session? GetByConnectionId(string connectionId) =>
+        _sessions.Values.SingleOrDefault(s => s.ConnectionIds.Contains(connectionId));
 }

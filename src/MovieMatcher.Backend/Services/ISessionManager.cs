@@ -8,5 +8,5 @@ public interface ISessionManager
     Session Create(SessionOptions options);
     Session? Get(string sessionId);
     void Remove(string sessionId);
-    IEnumerable<Session> GetByConnectionId(string connectionId);
+    Session? GetByConnectionId(string connectionId);
 }
