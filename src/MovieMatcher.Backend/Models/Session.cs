@@ -9,33 +9,34 @@ public class Session
 
     public int ConnectionCount => _connectionIds.Count;
 
+    private const int MaxConnections = 2;
+
     private readonly ConcurrentDictionary<string, byte> _connectionIds = new();
     private readonly ConcurrentDictionary<string, ConcurrentQueue<Movie>> _userMovieQueues = new();
     private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, byte>> _movieLikes = new();
     private readonly ConcurrentDictionary<string, Match> _matches = new();
 
-    public bool AddConnection(string connectionId)
-    {
-        if (!_connectionIds.TryAdd(connectionId, 0))
-        {
-            return false;
-        }
+    private readonly object _connectionLock = new();
 
-        _userMovieQueues.TryAdd(connectionId, new ConcurrentQueue<Movie>());
-        return true;
+    public bool TryAddConnection(string connectionId)
+    {
+        lock (_connectionLock)
+        {
+            if (_connectionIds.Count >= MaxConnections)
+            {
+                return false;
+            }
+
+            return _connectionIds.TryAdd(connectionId, 0) &&
+                   _userMovieQueues.TryAdd(connectionId, new ConcurrentQueue<Movie>());
+        }
     }
 
-    public bool RemoveConnection(string connectionId)
+    public bool TryRemoveConnection(string connectionId)
     {
-        if (!_connectionIds.TryRemove(connectionId, out _))
-        {
-            return false;
-        }
-
-        _userMovieQueues.TryRemove(connectionId, out _);
-        return true;
+        return _connectionIds.TryRemove(connectionId, out _) && _userMovieQueues.TryRemove(connectionId, out _);
     }
-    
+
     public bool ContainsConnection(string connectionId) => _connectionIds.ContainsKey(connectionId);
 
     public void EnqueueMovie(Movie movie)
@@ -50,17 +51,13 @@ public class Session
     {
         movie = null;
 
-        if (_userMovieQueues.TryGetValue(connectionId, out var queue))
-        {
-            return queue.TryDequeue(out movie);
-        }
-
-        return false;
+        return _userMovieQueues.TryGetValue(connectionId, out var queue) && queue.TryDequeue(out movie);
     }
 
     public void AddMovieLike(string movieId, string userId)
     {
         var userSet = _movieLikes.GetOrAdd(movieId, _ => new ConcurrentDictionary<string, byte>());
+
         if (!userSet.TryAdd(userId, 0))
         {
             return;
@@ -74,7 +71,7 @@ public class Session
             });
         }
     }
-    
+
     public bool MatchExists(string movieId)
     {
         return _matches.ContainsKey(movieId);
