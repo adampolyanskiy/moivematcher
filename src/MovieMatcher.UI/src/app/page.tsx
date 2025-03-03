@@ -11,6 +11,9 @@ import {
 export default function Home() {
   return (
     <>
+      <div className="fixed inset-0 -z-10 pointer-events-none">
+        <div className="w-full h-full bg-gradient-to-r dark:from-slate-900 dark:to-slate-700 from-slate-300 to-slate-500 blur-3xl"></div>
+      </div>
       <header className="absolute top-4 right-4">
         <ModeToggle />
       </header>
@@ -25,20 +28,13 @@ export default function Home() {
           </h2>
         </header>
         <div className="flex justify-center">
-          {/* Invite Button */}
           <Dialog>
             <DialogTrigger asChild>
               <Button className="mt-4">Create New Game</Button>
             </DialogTrigger>
-
-            {/* Popup Modal */}
             <DialogContent>
               <DialogTitle>Start a New Game</DialogTitle>
-
-              {/* Form Fields */}
               <div className="space-y-4">Game Options</div>
-
-              {/* Action Buttons */}
               <DialogFooter>
                 <Button variant="secondary">Cancel</Button>
                 <Button variant="default">Start</Button>
@@ -46,7 +42,7 @@ export default function Home() {
             </DialogContent>
           </Dialog>
         </div>
-      </div>{" "}
+      </div>
     </>
   );
 }
