@@ -17,7 +17,9 @@ public class TmdbApiService : IMovieService
     public TmdbApiService(ILogger<TmdbApiService> logger, IOptions<AppSettings> appSettings)
     {
         var apiKey = appSettings.Value.TMDbSettings.ApiKey;
-        _client = new TMDbClient(apiKey);
+        var baseUrl = appSettings.Value.TMDbSettings.BaseUrl;
+        
+        _client = new TMDbClient(apiKey: apiKey, baseUrl: baseUrl);
         _logger = logger;
     }
 

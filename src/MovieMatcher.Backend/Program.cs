@@ -20,7 +20,19 @@ builder.Services.AddSignalR();
 builder.Services.AddSingleton<ISessionStorage, InMemorySessionStorage>();
 builder.Services.AddSingleton<IMovieService, TmdbApiService>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        policy => policy
+            .WithOrigins("http://localhost:3000")
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
+});
+
 var app = builder.Build();
+
+app.UseCors("AllowAll");
 
 app.MapHub<MovieMatcherHub>("/movieMatcherHub");
 
