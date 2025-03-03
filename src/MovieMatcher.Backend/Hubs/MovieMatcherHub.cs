@@ -6,7 +6,7 @@ using SessionOptions = MovieMatcher.Backend.Models.SessionOptions;
 namespace MovieMatcher.Backend.Hubs;
 
 public class MovieMatcherHub(
-    ISessionManager sessionManager,
+    ISessionStorage sessionStorage,
     IMovieService movieService,
     ILogger<MovieMatcherHub> logger)
     : Hub
@@ -17,84 +17,109 @@ public class MovieMatcherHub(
             "User {ConnectionId} is starting swiping for session {SessionId}",
             Context.ConnectionId, sessionId);
 
-        var session = sessionManager.Get(sessionId);
+        var session = sessionStorage.Get(sessionId);
         if (session == null)
         {
             logger.LogWarning("Session {SessionId} not found", sessionId);
             throw new HubException("Session not found.");
         }
 
-        if (session.Options == null)
+        if (session.HostConnectionId != Context.ConnectionId)
         {
-            logger.LogWarning("Session {SessionId} has no configured options", sessionId);
-            throw new HubException("Session options are not configured.");
+            logger.LogWarning("User {ConnectionId} is not the host of session {SessionId}", Context.ConnectionId,
+                sessionId);
+            throw new HubException("You are not the host of this session.");
         }
 
-        var searchParams = new SearchMoviesParams
+        if (session.ConnectionIds.Count <= 1)
         {
-            IncludeAdult = session.Options.IncludeAdult,
-            Year = session.Options.Year,
-            GenreIds = session.Options.GenreIds
-        };
+            logger.LogWarning("Session {SessionId} only has one user", sessionId);
+            throw new HubException("There must be at least two users in the session.");
+        }
 
-        var movies = await movieService.SearchMovies(searchParams);
-        session.Movies = new Queue<Movie>(movies.Results);
+        var movies = await movieService.SearchMoviesAsync(
+            new SearchMoviesParams
+            {
+                IncludeAdult = session.Options.IncludeAdult,
+                Year = session.Options.Year,
+                GenreIds = session.Options.GenreIds
+            });
 
-        logger.LogDebug("Session {SessionId} has {MovieCount} movies queued for swiping", sessionId, movies.Results.Count);
+        logger.LogDebug("Session {SessionId} has {MovieCount} movies queued for swiping", sessionId,
+            movies.Results.Count);
 
-        if (session.Movies.TryDequeue(out var movie))
+        if (movies.Results.Count == 0)
         {
-            await Clients.Group(sessionId).SendAsync("ReceiveMovie", movie);
+            logger.LogWarning("No movies found for session {SessionId}", sessionId);
+            throw new HubException("No movies found.");
+        }
+
+        foreach (var movieToEnqueue in movies.Results)
+        {
+            session.EnqueueMovie(movieToEnqueue);
+        }
+
+        foreach (var connectionId in session.ConnectionIds)
+        {
+            if (session.TryDequeueMovie(connectionId, out var movie))
+            {
+                await Clients.Client(connectionId).SendAsync("ReceiveMovie", movie);
+            }
+        }
+
+        if (movies.Results.Count == 1)
+        {
+            logger.LogDebug("Only one movie found for session {SessionId}, notifying all clients", sessionId);
+            await Clients.Group(sessionId).SendAsync("NoMoreMovies");
         }
     }
 
     public async Task SwipeMovieAsync(string sessionId, string movieId, bool isLiked)
     {
-        logger.LogDebug("User {ConnectionId} swiped {SwipeType} on movie {MovieId} in session {SessionId}", 
+        logger.LogDebug("User {ConnectionId} swiped {SwipeType} on movie {MovieId} in session {SessionId}",
             Context.ConnectionId, isLiked ? "LIKE" : "DISLIKE", movieId, sessionId);
 
-        var session = sessionManager.Get(sessionId);
+        var session = sessionStorage.Get(sessionId);
         if (session == null)
         {
             logger.LogWarning("Session {SessionId} not found for swipe action", sessionId);
             throw new HubException("Session not found.");
         }
 
+        if (!session.ContainsConnection(Context.ConnectionId))
+        {
+            logger.LogWarning("User {ConnectionId} is not in session {SessionId}", Context.ConnectionId, sessionId);
+            throw new HubException("You are not in this session.");
+        }
+
         if (isLiked)
         {
-            if (!session.MovieLikes.ContainsKey(movieId))
-            {
-                session.MovieLikes[movieId] = new HashSet<string>();
-            }
-
-            session.MovieLikes[movieId].Add(Context.ConnectionId);
-
-            if (session.MovieLikes[movieId].SetEquals(session.ConnectionIds))
+            if (session.AddLikeAndCheckMatch(movieId, Context.ConnectionId))
             {
                 logger.LogDebug("Movie {MovieId} matched by all users in session {SessionId}", movieId, sessionId);
-                session.Matches.Add(new Match { MovieId = movieId, MatchedBy = Context.ConnectionId });
                 await Clients.Group(sessionId).SendAsync("MatchFound", movieId);
             }
         }
 
-        if (session.Movies.TryDequeue(out var nextMovie))
+        if (session.TryDequeueMovie(Context.ConnectionId, out var movie))
         {
-            await Clients.Group(sessionId).SendAsync("ReceiveMovie", nextMovie);
+            await Clients.Client(Context.ConnectionId).SendAsync("ReceiveMovie", movie);
         }
         else
         {
-            logger.LogDebug("No more movies left to swipe in session {SessionId}", sessionId);
-            await Clients.Group(sessionId).SendAsync("NoMoreMovies");
+            logger.LogDebug(
+                "No more movies left to swipe for client {ConnectionId} in session {SessionId}",
+                Context.ConnectionId, sessionId);
+            await Clients.Client(Context.ConnectionId).SendAsync("NoMoreMovies");
         }
     }
 
     public async Task<string> CreateSessionAsync(SessionOptions options)
     {
-        var session = sessionManager.Create(options);
-        session.ConnectionIds.Add(Context.ConnectionId);
+        var session = sessionStorage.Create(Context.ConnectionId, options);
 
         await Groups.AddToGroupAsync(Context.ConnectionId, session.Id);
-        
+
         logger.LogDebug("Session {SessionId} created by user {ConnectionId}", session.Id, Context.ConnectionId);
 
         return session.Id;
@@ -107,7 +132,18 @@ public class MovieMatcherHub(
             Context.ConnectionId,
             sessionId);
 
-        var session = sessionManager.Get(sessionId);
+        var existingSession = sessionStorage.GetByConnectionId(Context.ConnectionId);
+
+        if (existingSession != null)
+        {
+            logger.LogWarning(
+                "User {ConnectionId} is already in session {SessionId}",
+                Context.ConnectionId,
+                existingSession.Id);
+            throw new HubException($"User is already in session {existingSession.Id}.");
+        }
+
+        var session = sessionStorage.Get(sessionId);
         if (session == null)
         {
             logger.LogWarning(
@@ -117,58 +153,71 @@ public class MovieMatcherHub(
             throw new HubException($"Session {sessionId} not found.");
         }
 
-        session.ConnectionIds.Add(Context.ConnectionId);
-        await Groups.AddToGroupAsync(Context.ConnectionId, sessionId);
-
-        logger.LogDebug("User {ConnectionId} joined session {SessionId}", Context.ConnectionId, sessionId);
-        await Clients.Group(sessionId).SendAsync("UserJoined", Context.ConnectionId);
+        if (session.TryAddConnection(Context.ConnectionId))
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, sessionId);
+            logger.LogDebug("User {ConnectionId} joined session {SessionId}", Context.ConnectionId, sessionId);
+            await Clients.Group(sessionId).SendAsync("UserJoined", Context.ConnectionId);
+        }
+        else
+        {
+            logger.LogWarning(
+                "User {ConnectionId} cannot join session",
+                Context.ConnectionId);
+            throw new HubException("User cannot join session.");
+        }
     }
 
-    public async Task LeaveSessionAsync(string sessionId)
+    public async Task LeaveSessionAsync()
     {
-        logger.LogDebug("User {ConnectionId} is leaving session {SessionId}", Context.ConnectionId, sessionId);
+        var session = sessionStorage.GetByConnectionId(Context.ConnectionId);
 
-        var session = sessionManager.Get(sessionId);
         if (session == null)
         {
             logger.LogWarning(
-                "User {ConnectionId} tried to leave a non-existent session {SessionId}",
-                Context.ConnectionId, sessionId);
-            throw new HubException($"Session {sessionId} not found.");
+                "User {ConnectionId} tried to leave a session, but is not in any session",
+                Context.ConnectionId);
+            throw new HubException("User is not in any session.");
         }
 
-        if (session.ConnectionIds.Contains(Context.ConnectionId))
+        var isHost = session.HostConnectionId == Context.ConnectionId;
+
+        if (session.TryRemoveConnection(Context.ConnectionId))
         {
-            session.ConnectionIds.Remove(Context.ConnectionId);
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, sessionId);
-
-            logger.LogDebug("User {ConnectionId} left session {SessionId}", Context.ConnectionId, sessionId);
-            await Clients.Group(sessionId).SendAsync("UserLeft", Context.ConnectionId);
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, session.Id);
+            logger.LogDebug("User {ConnectionId} left session {SessionId}", Context.ConnectionId, session.Id);
+            await Clients.Group(session.Id).SendAsync("UserLeft", Context.ConnectionId);
         }
 
-        if (session.ConnectionIds.Count == 0)
+        if (!isHost)
         {
-            logger.LogDebug("Session {SessionId} has no users left, removing it", sessionId);
-            sessionManager.Remove(sessionId);
+            return;
         }
+        
+        await TerminateSessionAsync(session);
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        logger.LogDebug("User {ConnectionId} disconnected. Cleaning up their session memberships", Context.ConnectionId);
-        
-        var session = sessionManager.GetByConnectionId(Context.ConnectionId);
+        logger.LogDebug("User {ConnectionId} disconnected. Cleaning up their session memberships",
+            Context.ConnectionId);
+
+        var session = sessionStorage.GetByConnectionId(Context.ConnectionId);
 
         if (session != null)
         {
-            session.ConnectionIds.Remove(Context.ConnectionId);
-            if (session.ConnectionIds.Count == 0)
+            var isHost = session.HostConnectionId == Context.ConnectionId;
+
+            if (session.TryRemoveConnection(Context.ConnectionId))
             {
-                logger.LogDebug(
-                    "Session {SessionId} is empty after {ConnectionId} disconnected. Removing session.",
-                    session.Id,
-                    Context.ConnectionId);
-                sessionManager.Remove(session.Id);
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, session.Id);
+                logger.LogDebug("User {ConnectionId} left session {SessionId}", Context.ConnectionId, session.Id);
+                await Clients.Group(session.Id).SendAsync("UserLeft", Context.ConnectionId);
+            }
+
+            if (isHost)
+            {
+                await TerminateSessionAsync(session);
             }
         }
 
@@ -178,5 +227,18 @@ public class MovieMatcherHub(
         }
 
         await base.OnDisconnectedAsync(exception);
+    }
+    
+    private async Task TerminateSessionAsync(Session session)
+    {
+        await Clients.Group(session.Id).SendAsync("SessionTerminated", "Host has left the session.");
+
+        foreach (var connId in session.ConnectionIds.ToList())
+        {
+            await Groups.RemoveFromGroupAsync(connId, session.Id);
+        }
+
+        logger.LogDebug("Session {SessionId} is empty or host left, removing it", session.Id);
+        sessionStorage.Remove(session.Id);
     }
 }

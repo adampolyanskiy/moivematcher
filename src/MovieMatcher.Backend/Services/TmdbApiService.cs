@@ -59,7 +59,7 @@ public class TmdbApiService : IMovieService
         }
     }
 
-    public async Task<SearchResponse<Movie>> SearchMovies(SearchMoviesParams? parameters = null)
+    public async Task<SearchResponse<Movie>> SearchMoviesAsync(SearchMoviesParams? parameters = null)
     {
         try
         {

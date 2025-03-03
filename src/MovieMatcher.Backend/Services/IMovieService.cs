@@ -16,7 +16,7 @@ public interface IMovieService
     /// <returns>A list of TV show genres.</returns>
     Task<List<Genre>> GetTvGenresAsync();
 
-    public Task<SearchResponse<Movie>> SearchMovies(SearchMoviesParams? parameters = null);
+    public Task<SearchResponse<Movie>> SearchMoviesAsync(SearchMoviesParams? parameters = null);
 
     public Task<SearchResponse<TvShow>> SearchTvShowsAsync(SearchTvParams? parameters = null);
 }

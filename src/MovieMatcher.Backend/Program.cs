@@ -17,7 +17,7 @@ builder.Services.AddSingleton(sp =>
 
 builder.Services.AddSignalR();
 
-builder.Services.AddSingleton<ISessionManager, InMemorySessionManager>();
+builder.Services.AddSingleton<ISessionStorage, InMemorySessionStorage>();
 builder.Services.AddSingleton<IMovieService, TmdbApiService>();
 
 var app = builder.Build();
