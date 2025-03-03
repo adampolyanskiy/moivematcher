@@ -12,17 +12,17 @@ export default function Home() {
   return (
     <>
       <div className="fixed inset-0 -z-10 pointer-events-none">
-        <div className="w-full h-full bg-gradient-to-r dark:from-slate-900 dark:to-slate-700 from-slate-300 to-slate-500 blur-3xl"></div>
+        <div className="w-full h-full bg-gradient-to-r from-sky-400 via-sky-500 to-indigo-600 dark:from-sky-600 dark:via-sky-700 dark:to-indigo-800 blur-3xl"></div>
       </div>
       <header className="absolute top-4 right-4">
         <ModeToggle />
       </header>
       <div className="flex flex-col items-center justify-start min-h-screen pt-[25vh] text-center">
         <header className="text-center">
-          <h1 className="text-6xl font-extrabold tracking-tight">
+          <h1 className="text-6xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100">
             🎬 MovieMatcher
           </h1>
-          <h2 className="text-xl md:text-2xl text-gray-600 mt-3 max-w-2xl mx-auto">
+          <h2 className="text-xl md:text-2xl mt-3 max-w-2xl mx-auto text-gray-700 dark:text-gray-300">
             Swipe through movies, match with friends, and discover the perfect
             film to watch together!
           </h2>
