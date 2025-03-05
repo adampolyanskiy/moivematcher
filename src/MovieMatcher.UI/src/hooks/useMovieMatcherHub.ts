@@ -58,7 +58,7 @@ export const useMovieMatcherHub = () => {
   }, []);
 
   const swipeMovie = useCallback(
-    async (sessionId: string, movieId: string, isLiked: boolean): Promise<void> => {
+    async (sessionId: string, movieId: number, isLiked: boolean): Promise<void> => {
       if (!connectionRef.current) return;
       await connectionRef.current.invoke("SwipeMovieAsync", sessionId, movieId, isLiked);
     },
