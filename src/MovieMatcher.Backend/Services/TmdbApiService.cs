@@ -17,7 +17,7 @@ public class TmdbApiService : IMovieService
     public TmdbApiService(ILogger<TmdbApiService> logger, IOptions<AppSettings> appSettings)
     {
         var apiKey = appSettings.Value.TMDbSettings.ApiKey;
-        
+
         _client = new TMDbClient(apiKey);
         _logger = logger;
     }
@@ -72,12 +72,24 @@ public class TmdbApiService : IMovieService
 
             if (parameters != null)
             {
-                if (parameters.Year.HasValue)
+                if (parameters.StartYear > parameters.EndYear || parameters.StartYear < 0 || parameters.EndYear < 0)
                 {
-                    query = query.WhereAnyReleaseDateIsInYear(parameters.Year.Value);
+                    throw new ArgumentException(
+                        "StartYear and EndYear must be non-negative, and StartYear must be less than or equal to EndYear.");
                 }
 
+                if (parameters.StartYear < 1900 || parameters.EndYear > DateTime.Now.Year)
+                {
+                    throw new ArgumentException(
+                        $"StartYear must be no earlier than 1900 and EndYear must be no later than the current year ({DateTime.Now.Year}).");
+                }
+
+                var startDate = new DateTime(parameters.StartYear, 1, 1);
+                var endDate = new DateTime(parameters.EndYear, 12, 31);
+
                 result = await query
+                    .WhereReleaseDateIsAfter(startDate)
+                    .WhereReleaseDateIsBefore(endDate)
                     .IncludeAdultMovies(parameters.IncludeAdult)
                     .IncludeWithAnyOfGenre(parameters.GenreIds)
                     .Query(parameters.Page);

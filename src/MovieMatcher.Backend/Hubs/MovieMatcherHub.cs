@@ -41,7 +41,8 @@ public class MovieMatcherHub(
             new SearchMoviesParams
             {
                 IncludeAdult = session.Options.IncludeAdult,
-                Year = session.Options.Year,
+                StartYear = session.Options.StartYear,
+                EndYear = session.Options.EndYear,
                 GenreIds = session.Options.GenreIds
             });
 
