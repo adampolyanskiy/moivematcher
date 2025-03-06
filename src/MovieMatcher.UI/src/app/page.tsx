@@ -1,12 +1,14 @@
 import CreateGameDialog from "@/components/CreateGameDialog";
 import MovieMatcherHeader from "@/components/MovieMatcherHeader";
+import JoinGameForm from "@/components/JoinGameForm";
 
 export default function Home() {
   return (
     <div className="flex flex-col items-center justify-start min-h-screen pt-[25vh] text-center">
       <MovieMatcherHeader />
-      <div className="flex justify-center">
+      <div className="flex flex-col items-center gap-6 w-full max-w-md">
         <CreateGameDialog />
+        <JoinGameForm />
       </div>
     </div>
   );
