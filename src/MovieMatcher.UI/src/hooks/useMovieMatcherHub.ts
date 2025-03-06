@@ -3,18 +3,20 @@ import * as signalR from "@microsoft/signalr";
 import { getSignalRConnection } from "@/lib";
 import type { HubEvents, SessionOptions } from "@/types";
 
-// ✅ Singleton connection instance (prevents losing state on page navigation)
 let connectionInstance: signalR.HubConnection | null = null;
+let connectionContext: SessionOptions | null = null;
 
 export const useMovieMatcherHub = () => {
-  const connectionRef = useRef<signalR.HubConnection | null>(connectionInstance);
+  const connectionRef = useRef<signalR.HubConnection | null>(
+    connectionInstance
+  );
+  const contextRef = useRef<SessionOptions | null>(connectionContext);
   const [isConnected, setIsConnected] = useState(
     connectionInstance?.state === signalR.HubConnectionState.Connected
   );
   const [connecting, setConnecting] = useState(false);
 
-  // 🚀 Explicitly connect to SignalR hub
-  const connect = useCallback(async () => {
+  const connect = useCallback(async (context?: SessionOptions) => {
     if (connectionRef.current?.state === signalR.HubConnectionState.Connected) {
       return connectionRef.current;
     }
@@ -23,9 +25,13 @@ export const useMovieMatcherHub = () => {
     try {
       const conn = await getSignalRConnection();
       connectionRef.current = conn;
-      connectionInstance = conn; // ✅ Persist the connection instance globally
+      connectionInstance = conn;
 
-      // ✅ Ensure state updates after connection is established
+      if (context != null) {
+        contextRef.current = context;
+        connectionContext = context;
+      }
+
       setIsConnected(true);
       return conn;
     } catch (error) {
@@ -36,38 +42,54 @@ export const useMovieMatcherHub = () => {
     }
   }, []);
 
-  // 🔌 Disconnect from SignalR hub
   const disconnect = useCallback(async () => {
     if (connectionRef.current) {
       await connectionRef.current.stop();
       connectionRef.current = null;
-      connectionInstance = null; // Reset global instance
+      connectionInstance = null;
+      contextRef.current = null;
+      connectionContext = null;
       setIsConnected(false);
     }
   }, []);
 
-  // ✅ Ensure state stays correct on re-renders (fixes losing connection when navigating)
+  // Ensure state stays correct on re-renders
   useEffect(() => {
-    setIsConnected(connectionRef.current?.state === signalR.HubConnectionState.Connected);
+    setIsConnected(
+      connectionRef.current?.state === signalR.HubConnectionState.Connected
+    );
   }, [connectionRef.current?.state]);
 
-  // 🎬 Hub Methods (Async Calls to Server)
   const startSwiping = useCallback(async (sessionId: string): Promise<void> => {
     if (!connectionRef.current) return;
     await connectionRef.current.invoke("StartSwipingAsync", sessionId);
   }, []);
 
   const swipeMovie = useCallback(
-    async (sessionId: string, movieId: number, isLiked: boolean): Promise<void> => {
+    async (
+      sessionId: string,
+      movieId: number,
+      isLiked: boolean
+    ): Promise<void> => {
       if (!connectionRef.current) return;
-      await connectionRef.current.invoke("SwipeMovieAsync", sessionId, movieId, isLiked);
+      await connectionRef.current.invoke(
+        "SwipeMovieAsync",
+        sessionId,
+        movieId,
+        isLiked
+      );
     },
     []
   );
 
-  const createSession = useCallback(async (options: SessionOptions): Promise<string | null> => {
+  const createSession = useCallback(async (): Promise<string | null> => {
     if (!connectionRef.current) return null;
-    return await connectionRef.current.invoke<string>("CreateSessionAsync", options);
+    if (!contextRef.current) return null;
+
+    return await connectionRef.current.invoke<string>(
+      "CreateSessionAsync",
+      contextRef.current
+    );
   }, []);
 
   const joinSession = useCallback(async (sessionId: string): Promise<void> => {
@@ -80,15 +102,24 @@ export const useMovieMatcherHub = () => {
     await connectionRef.current.invoke("LeaveSessionAsync");
   }, []);
 
-  // 🔥 Event Subscription Helper
-  const on = useCallback(<T extends keyof HubEvents>(event: T, callback: HubEvents[T]): void => {
-    if (!connectionRef.current) return;
-    connectionRef.current.on(event, callback);
-  }, []);
+  const on = useCallback(
+    <T extends keyof HubEvents>(event: T, callback: HubEvents[T]): void => {
+      if (!connectionRef.current) return;
+      connectionRef.current.on(event, callback);
+    },
+    []
+  );
 
-  const off = useCallback(<T extends keyof HubEvents>(event: T, callback: HubEvents[T]): void => {
-    if (!connectionRef.current) return;
-    connectionRef.current.off(event, callback);
+  const off = useCallback(
+    <T extends keyof HubEvents>(event: T, callback: HubEvents[T]): void => {
+      if (!connectionRef.current) return;
+      connectionRef.current.off(event, callback);
+    },
+    []
+  );
+
+  const getContext = useCallback(() => {
+    return contextRef.current;
   }, []);
 
   return {
@@ -103,5 +134,6 @@ export const useMovieMatcherHub = () => {
     leaveSession,
     on,
     off,
+    getContext,
   };
 };

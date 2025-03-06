@@ -56,7 +56,12 @@ export default function CreateGameDialog() {
       setLoading(true);
 
       try {
-        const connection = await connect();
+        const connection = await connect({
+          includeAdult: value.includeAdult,
+          startDate: value.years[0],
+          endDate: value.years[1],
+          genreIds: value.genreIds,
+        });
 
         if (
           connection &&

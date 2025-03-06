@@ -4,7 +4,7 @@ import { useMovieMatcherHub } from "@/hooks/useMovieMatcherHub";
 import { Button } from "@/components/ui/button";
 
 export default function GamePage() {
-  const { isConnected } = useMovieMatcherHub();
+  const { isConnected, getContext } = useMovieMatcherHub();
   const router = useRouter();
 
   if (!isConnected) {
@@ -19,12 +19,13 @@ export default function GamePage() {
     );
   }
 
+  const context = getContext();
   return (
     <div className="flex flex-col items-center justify-center min-h-screen text-center">
-      <h1 className="text-4xl font-bold">🎮 Game Page</h1>
-      <p className="text-lg text-gray-700 dark:text-gray-300 mt-2">
-        This is a stub for now. More game features coming soon!
-      </p>
+      <h1 className="text-4xl font-bold">Game Page</h1>
+      <pre className="text-lg text-gray-700 dark:text-gray-300 mt-2">
+        {JSON.stringify(context, null, 2)}
+      </pre>
     </div>
   );
 }
