@@ -46,7 +46,7 @@ export default function CreateGameDialog() {
     resolver: zodResolver(createGameSchema),
     defaultValues: {
       includeAdult: false,
-      years: [2010, 2023],
+      years: [2010, new Date().getFullYear()],
       genreIds: [],
     },
   });
@@ -133,10 +133,11 @@ export default function CreateGameDialog() {
                     <Slider
                       step={1}
                       min={1900}
-                      max={2023}
+                      max={new Date().getFullYear()}
                       defaultValue={field.value}
                       onValueChange={field.onChange}
                       value={field.value}
+                      minStepsBetweenThumbs={1}
                     />
                   </FormControl>
                   <FormMessage />
@@ -151,6 +152,7 @@ export default function CreateGameDialog() {
                   <FormLabel>Genres</FormLabel>
                   <FormControl>
                     <MultipleSelector
+                      className="w-full"
                       value={genres
                         .filter((g) => field.value.includes(g.id))
                         .map((g) => ({
