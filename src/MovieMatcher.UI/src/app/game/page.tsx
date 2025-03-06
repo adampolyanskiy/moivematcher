@@ -6,9 +6,10 @@ import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import SessionInfo from "@/components/SessionInfo";
 import SessionPreferences from "@/components/SessionPreferences";
+import { MovieDto } from "@/types";
 
 export default function GamePage() {
-  const { isConnected, createSession, joinSession, connect } =
+  const { isConnected, createSession, joinSession, connect, on, off } =
     useMovieMatcherHub();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -20,8 +21,8 @@ export default function GamePage() {
   const isHost = !sessionIdFromParam;
   const [isConnecting, setIsConnecting] = useState(false);
 
+  // Establish connection and join session if sessionId is provided
   useEffect(() => {
-    // Only connect if a session ID is provided
     if (!sessionIdFromParam) return;
 
     const initializeConnection = async () => {
@@ -35,7 +36,6 @@ export default function GamePage() {
         setIsJoining(true);
         try {
           await joinSession(sessionIdFromParam);
-          toast.success("Joined game session successfully!");
         } catch {
           toast.error(
             "Failed to join the session. Please check the code and try again."
@@ -50,9 +50,52 @@ export default function GamePage() {
     initializeConnection();
   }, [sessionIdFromParam, isConnected, connect, joinSession, router]);
 
+  // Subscribe to SignalR hub events
+  useEffect(() => {
+    const handleReceiveMovie = (movie: MovieDto) => {
+      toast(`Received movie: ${movie.title || "Unknown Title"}`);
+    };
+
+    const handleNoMoreMovies = () => {
+      toast.info("No more movies available.");
+    };
+
+    const handleMatchFound = (movieId: string) => {
+      toast.success(`Match found for movie ${movieId}!`);
+    };
+
+    const handleUserJoined = (connectionId: string) => {
+      toast(`User ${connectionId} joined.`);
+    };
+
+    const handleUserLeft = (connectionId: string) => {
+      toast(`User ${connectionId} left.`);
+    };
+
+    const handleSessionTerminated = (message: string) => {
+      toast.error(message);
+      router.push("/");
+    };
+
+    on("ReceiveMovie", handleReceiveMovie);
+    on("NoMoreMovies", handleNoMoreMovies);
+    on("MatchFound", handleMatchFound);
+    on("UserJoined", handleUserJoined);
+    on("UserLeft", handleUserLeft);
+    on("SessionTerminated", handleSessionTerminated);
+
+    return () => {
+      off("ReceiveMovie", handleReceiveMovie);
+      off("NoMoreMovies", handleNoMoreMovies);
+      off("MatchFound", handleMatchFound);
+      off("UserJoined", handleUserJoined);
+      off("UserLeft", handleUserLeft);
+      off("SessionTerminated", handleSessionTerminated);
+    };
+  }, [on, off, router]);
+
   const handleStartGame = async () => {
     if (!isHost) return;
-
     try {
       const newSessionId = await createSession();
       if (!newSessionId) {
@@ -101,10 +144,8 @@ export default function GamePage() {
           Connecting to server...
         </p>
       )}
-
       {sessionId && <SessionInfo sessionId={sessionId} />}
-      { isHost && <SessionPreferences /> }
-
+      {isHost && <SessionPreferences />}
       {isHost ? (
         <Button
           className="mt-4"
