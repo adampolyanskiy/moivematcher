@@ -7,6 +7,7 @@ using MovieMatcher.Backend.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddLogging();
+builder.Services.AddControllers();
 
 builder.Services.Configure<AppSettings>(builder.Configuration);
 
@@ -35,5 +36,7 @@ var app = builder.Build();
 app.UseCors("AllowAll");
 
 app.MapHub<MovieMatcherHub>("/movieMatcherHub");
+
+app.MapControllers();
 
 app.Run();
