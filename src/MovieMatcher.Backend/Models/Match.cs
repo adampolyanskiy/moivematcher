@@ -2,5 +2,5 @@
 
 public class Match
 {
-    public required string MovieId { get; set; }
+    public required int MovieId { get; set; }
 }

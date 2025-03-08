@@ -40,8 +40,8 @@ public class Session
 
     private readonly ConcurrentDictionary<string, byte> _connectionIds = new();
     private readonly ConcurrentDictionary<string, ConcurrentQueue<Movie>> _userMovieQueues = new();
-    private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, byte>> _movieLikes = new();
-    private readonly ConcurrentDictionary<string, Match> _matches = new();
+    private readonly ConcurrentDictionary<int, ConcurrentDictionary<string, byte>> _movieLikes = new();
+    private readonly ConcurrentDictionary<int, Match> _matches = new();
 
     private readonly object _connectionLock = new();
     private readonly object _movieLikeLock = new();
@@ -113,7 +113,7 @@ public class Session
     /// <param name="movieId">The ID of the movie.</param>
     /// <param name="connectionId">The connection ID of the user.</param>
     /// <returns><see langword="true"/> if a match exists, otherwise <see langword="false"/>.</returns>
-    public bool AddLikeAndCheckMatch(string movieId, string connectionId)
+    public bool AddLikeAndCheckMatch(int movieId, string connectionId)
     {
         lock (_movieLikeLock)
         {
@@ -127,7 +127,7 @@ public class Session
     /// </summary>
     /// <param name="movieId">The ID of the movie.</param>
     /// <param name="connectionId">The connection ID of the user.</param>
-    private void AddMovieLike(string movieId, string connectionId)
+    private void AddMovieLike(int movieId, string connectionId)
     {
         var connectionSet = _movieLikes.GetOrAdd(movieId, _ => new ConcurrentDictionary<string, byte>());
 
@@ -150,7 +150,7 @@ public class Session
     /// </summary>
     /// <param name="movieId">The ID of the movie.</param>
     /// <returns><see langword="true"/> if a match exists, otherwise <see langword="false"/>.</returns>
-    private bool MatchExists(string movieId)
+    private bool MatchExists(int movieId)
     {
         return _matches.ContainsKey(movieId);
     }

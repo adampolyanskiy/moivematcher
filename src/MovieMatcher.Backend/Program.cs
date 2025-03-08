@@ -16,7 +16,7 @@ builder.Services.AddAutoMapper(typeof(ApplicationMappingProfile));
 builder.Services.AddSingleton(sp =>
     sp.GetRequiredService<IOptions<AppSettings>>().Value);
 
-builder.Services.AddSignalR();
+builder.Services.AddSignalR().AddJsonProtocol();
 
 builder.Services.AddSingleton<ISessionStorage, InMemorySessionStorage>();
 builder.Services.AddSingleton<IMovieService, TmdbApiService>();

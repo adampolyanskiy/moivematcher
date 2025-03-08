@@ -75,7 +75,7 @@ public class MovieMatcherHub(
         }
     }
 
-    public async Task SwipeMovieAsync(string sessionId, string movieId, bool isLiked)
+    public async Task SwipeMovieAsync(string sessionId, int movieId, bool isLiked)
     {
         logger.LogDebug("User {ConnectionId} swiped {SwipeType} on movie {MovieId} in session {SessionId}",
             Context.ConnectionId, isLiked ? "LIKE" : "DISLIKE", movieId, sessionId);
