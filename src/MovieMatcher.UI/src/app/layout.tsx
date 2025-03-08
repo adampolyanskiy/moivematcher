@@ -28,11 +28,13 @@ export default function RootLayout({
             <div className="fixed inset-0 -z-10 pointer-events-none">
               <div className="w-full h-full bg-gradient-to-r from-sky-400 via-sky-500 to-indigo-600 dark:from-sky-600 dark:via-sky-700 dark:to-indigo-800 blur-3xl"></div>
             </div>
-            <header className="absolute top-4 right-4">
+            <header className="w-full h-14 flex justify-end items-center px-6 py-2">
               <ModeToggle />
             </header>
 
-            {children}
+            <main className="h-full">
+              {children}
+            </main>
             <Toaster/>
           </ThemeProvider>
         </body>

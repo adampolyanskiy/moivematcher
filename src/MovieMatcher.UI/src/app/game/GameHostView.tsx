@@ -31,36 +31,39 @@ const GameHostView: React.FC<GameHostViewProps> = ({
 }) => {
   const currentMovie = movieQueue[movieQueue.length - 1] || null;
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen text-center gap-6">
-      <h1 className="text-4xl font-bold">Host Game</h1>
-      <SessionInfo sessionId={sessionId} />
-      <SessionPreferences />
-      {!isMatchingStarted ? (
-        <Button
-          className="mt-4"
-          onClick={onStartMatching}
-          disabled={joinedUsersCount < 1}
-        >
-          Start Matching {joinedUsersCount < 1 && "(Waiting for users)"}
-        </Button>
-      ) : (
-        <>
-          {currentMovie ? (
-            <MovieCard movie={currentMovie} onSwipe={onSwipe} />
-          ) : noMoreMovies ? (
-            <p className="text-gray-700 dark:text-gray-300">
-              No more movies available.
-            </p>
-          ) : (
-            <p className="text-gray-700 dark:text-gray-300">
-              Waiting for next movie...
-            </p>
-          )}
-          {matches.length > 0 && (
-            <MatchList movieQueue={movieQueue} matches={matches} />
-          )}
-        </>
-      )}
+    <div className="flex flex-row items-start justify-center gap-8 p-6">
+      {/* Match List (Left) */}
+      <div className="w-1/4">
+        {matches.length > 0 && (
+          <MatchList movieQueue={movieQueue} matches={matches} />
+        )}
+      </div>
+
+      {/* Movie & Information (Center) */}
+      <div className="w-1/2 flex flex-col items-center text-center">
+        <h1 className="text-4xl font-bold">Host Game</h1>
+        {!isMatchingStarted ? (
+          <Button onClick={onStartMatching} disabled={joinedUsersCount < 1}>
+            Start Matching {joinedUsersCount < 1 && "(Waiting for users)"}
+          </Button>
+        ) : currentMovie ? (
+          <MovieCard movie={currentMovie} onSwipe={onSwipe} />
+        ) : noMoreMovies ? (
+          <p className="text-gray-700 dark:text-gray-300">
+            No more movies available.
+          </p>
+        ) : (
+          <p className="text-gray-700 dark:text-gray-300">
+            Waiting for next movie...
+          </p>
+        )}
+      </div>
+
+      {/* Session Info & Preferences (Right) */}
+      <div className="w-1/4 flex flex-col items-center gap-6">
+        <SessionInfo sessionId={sessionId} />
+        <SessionPreferences />
+      </div>
     </div>
   );
 };

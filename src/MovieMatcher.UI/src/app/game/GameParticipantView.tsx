@@ -25,29 +25,38 @@ const GameParticipantView: React.FC<GameParticipantViewProps> = ({
 }) => {
   const currentMovie = movieQueue[movieQueue.length - 1] || null;
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen text-center gap-6">
-      <h1 className="text-4xl font-bold">Joined Game</h1>
-      <SessionInfo sessionId={sessionId} />
-      {!isMatchingStarted ? (
-        <p className="text-gray-700 dark:text-gray-300">
-          Waiting for host to start matching...
-        </p>
-      ) : (
-        <>
-          {currentMovie ? (
-            <MovieCard movie={currentMovie} onSwipe={onSwipe} />
-          ) : noMoreMovies ? (
-            <p className="text-gray-700 dark:text-gray-300">
-              No more movies available.
-            </p>
-          ) : (
-            <p className="text-gray-700 dark:text-gray-300">
-              Waiting for next movie...
-            </p>
-          )}
-          {matches.length > 0 && <MatchList movieQueue={movieQueue} matches={matches} />}
-        </>
-      )}
+    <div className="flex flex-row items-start justify-center gap-8 p-6">
+      {/* Match List (Left) */}
+      <div className="w-1/4">
+        {matches.length > 0 && (
+          <MatchList movieQueue={movieQueue} matches={matches} />
+        )}
+      </div>
+
+      {/* Movie & Information (Center) */}
+      <div className="w-1/2 flex flex-col items-center text-center">
+        <h1 className="text-4xl font-bold">Joined Game</h1>
+        {!isMatchingStarted ? (
+          <p className="text-gray-700 dark:text-gray-300">
+            Waiting for host to start matching...
+          </p>
+        ) : currentMovie ? (
+          <MovieCard movie={currentMovie} onSwipe={onSwipe} />
+        ) : noMoreMovies ? (
+          <p className="text-gray-700 dark:text-gray-300">
+            No more movies available.
+          </p>
+        ) : (
+          <p className="text-gray-700 dark:text-gray-300">
+            Waiting for next movie...
+          </p>
+        )}
+      </div>
+
+      {/* Session Info (Right) */}
+      <div className="w-1/4">
+        <SessionInfo sessionId={sessionId} />
+      </div>
     </div>
   );
 };

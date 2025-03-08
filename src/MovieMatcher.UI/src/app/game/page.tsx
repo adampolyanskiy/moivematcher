@@ -46,12 +46,14 @@ export default function GamePage() {
 
     const handleNoMoreMovies = () => {
       setNoMoreMovies(true);
-      setMovieQueue([]);
+      // Movies needed to display matches when there are no more movies
+      // setMovieQueue([]);
       toast.info("No more movies available.");
     };
 
     const handleMatchFound = (movieId: number) => {
-      toast.success(`Match found for movie ${movieId}!`);
+      const movieName = movieQueue.find((movie) => movie.id === movieId)?.title;
+      toast.success(`Match found for movie ${movieName}!`);
       setMatches((prev) => [...prev, movieId]);
     };
 
@@ -87,7 +89,7 @@ export default function GamePage() {
       off("UserLeft", handleUserLeft);
       off("SessionTerminated", handleSessionTerminated);
     };
-  }, [on, off, router]);
+  }, [on, off, router, movieQueue]);
 
   // Establish connection and join session if a sessionId is provided
   useEffect(() => {
@@ -161,7 +163,7 @@ export default function GamePage() {
   // Render connection state
   if (!isConnected && sessionIdFromParam) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen text-center">
+      <div className="flex flex-col items-center justify-center text-center">
         <h1 className="text-3xl font-bold text-red-600">Connecting...</h1>
         <p className="text-gray-700 dark:text-gray-300">
           Attempting to connect to the session. Please wait.
@@ -171,7 +173,7 @@ export default function GamePage() {
   }
   if (!isConnected && !sessionIdFromParam) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen text-center">
+      <div className="flex flex-col items-center justify-center text-center">
         <h1 className="text-3xl font-bold text-red-600">No Connection</h1>
         <p className="text-gray-700 dark:text-gray-300 mb-4">
           You are not connected to the game server. Please return to the home
@@ -196,7 +198,7 @@ export default function GamePage() {
         onSwipe={handleSwipe}
       />
     ) : (
-      <div className="flex flex-col items-center justify-center min-h-screen text-center">
+      <div className="flex flex-col items-center justify-center text-center">
         <Button className="mt-4" onClick={handleStartGame}>
           Start a New Game
         </Button>
