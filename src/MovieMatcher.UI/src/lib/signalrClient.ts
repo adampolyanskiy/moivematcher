@@ -16,6 +16,7 @@ export const getSignalRConnection = async () => {
     .build();
 
   try {
+    console.log("Calling connection.start()...");
     await connection.start();
     console.log("SignalR Connected.");
   } catch (error) {

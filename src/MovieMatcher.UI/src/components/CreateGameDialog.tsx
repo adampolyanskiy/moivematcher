@@ -58,8 +58,8 @@ export default function CreateGameDialog() {
       try {
         const connection = await connect({
           includeAdult: value.includeAdult,
-          startDate: value.years[0],
-          endDate: value.years[1],
+          startYear: value.years[0],
+          endYear: value.years[1],
           genreIds: value.genreIds,
         });
 

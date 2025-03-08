@@ -1,6 +1,6 @@
 export type SessionOptions = {
   includeAdult: boolean;
-  startDate: number,
-  endDate: number,
+  startYear: number,
+  endYear: number,
   genreIds: number[];
 }

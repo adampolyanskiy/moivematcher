@@ -2,8 +2,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useMovieMatcherHub } from "@/hooks/useMovieMatcherHub";
 
 export default function SessionPreferences() {
-  const sessionOptions = useMovieMatcherHub().getContext();
-  if (!sessionOptions) return null;
+  const context = useMovieMatcherHub().getContext();
+  if (!context?.options) return null;
 
   return (
     <Card className="w-full max-w-md p-4">
@@ -13,18 +13,18 @@ export default function SessionPreferences() {
       <CardContent className="text-gray-700 dark:text-gray-300 space-y-2">
         <p>
           <strong>Include Adult:</strong>{" "}
-          {sessionOptions.includeAdult ? "Yes" : "No"}
+          {context.options.includeAdult ? "Yes" : "No"}
         </p>
         <p>
-          <strong>Start Year:</strong> {sessionOptions.startDate}
+          <strong>Start Year:</strong> {context.options.startYear}
         </p>
         <p>
-          <strong>End Year:</strong> {sessionOptions.endDate}
+          <strong>End Year:</strong> {context.options.endYear}
         </p>
         <p>
           <strong>Genres:</strong>{" "}
-          {sessionOptions.genreIds.length > 0
-            ? sessionOptions.genreIds.join(", ")
+          {context.options.genreIds.length > 0
+            ? context.options.genreIds.join(", ")
             : "Any"}
         </p>
       </CardContent>
