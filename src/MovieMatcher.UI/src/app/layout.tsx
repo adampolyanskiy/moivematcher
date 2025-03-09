@@ -3,6 +3,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import "@/styles/global.css";
 import { ModeToggle } from "@/components/ModeToggle";
 import { Toaster } from "sonner";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Movie Matcher",
@@ -33,9 +34,9 @@ export default function RootLayout({
             </header>
 
             <main className="h-full">
-              {children}
+              <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
             </main>
-            <Toaster/>
+            <Toaster />
           </ThemeProvider>
         </body>
       </html>
