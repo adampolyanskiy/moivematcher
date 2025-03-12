@@ -28,6 +28,9 @@ export const useMovieMatcherHub = () => {
         setIsConnected(true);
         if (options) {
           contextRef.current.options = options;
+          connectionContext = {
+            options,
+          };
         }
         return conn;
       } catch (error) {
@@ -62,6 +65,7 @@ export const useMovieMatcherHub = () => {
     if (sessionId) {
       contextRef.current.sessionId = sessionId;
       connectionContext = {
+        ...connectionContext,
         sessionId,
       };
     }

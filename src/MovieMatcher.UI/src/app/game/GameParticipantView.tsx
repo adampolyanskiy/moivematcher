@@ -35,7 +35,6 @@ const GameParticipantView: React.FC<GameParticipantViewProps> = ({
 
       {/* Movie & Information (Center) */}
       <div className="w-1/2 flex flex-col items-center text-center">
-        <h1 className="text-4xl font-bold">Joined Game</h1>
         {!isMatchingStarted ? (
           <p className="text-gray-700 dark:text-gray-300">
             Waiting for host to start matching...

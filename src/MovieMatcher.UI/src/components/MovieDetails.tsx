@@ -11,20 +11,20 @@ interface MovieDetailsProps {
 const MovieDetails: React.FC<MovieDetailsProps> = ({ movie }) => {
   return (
     <Card className="p-4 border rounded-lg shadow-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 max-w-lg mx-auto">
-      {/* Movie Poster (Enlarged) */}
-      {movie.posterPath && (
-        <div className="w-full h-80 rounded-lg overflow-hidden">
-          <Image
-            src={`https://image.tmdb.org/t/p/w500${movie.posterPath}`}
-            alt={movie.title}
-            width={500}
-            height={750}
-            className="w-full h-full object-contain"
-          />
-        </div>
-      )}
+      <CardContent className="pt-2">
+        {/* Movie Poster (Enlarged) */}
+        {movie.posterPath && (
+          <div className="w-full h-80 rounded-lg overflow-hidden">
+            <Image
+              src={`https://image.tmdb.org/t/p/w500${movie.posterPath}`}
+              alt={movie.title}
+              width={500}
+              height={750}
+              className="w-full h-full object-contain"
+            />
+          </div>
+        )}
 
-      <CardContent className="pt-4">
         {/* Movie Title */}
         <h2 className="text-2xl font-bold text-center">{movie.title}</h2>
 

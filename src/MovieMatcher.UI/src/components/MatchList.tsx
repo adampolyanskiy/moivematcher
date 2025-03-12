@@ -38,7 +38,7 @@ const MatchList: React.FC<MatchListProps> = ({ matches, movieQueue }) => {
                   <PopoverTrigger className="hover:underline">
                     {movie.title}
                   </PopoverTrigger>
-                  <PopoverContent className="w-96">
+                  <PopoverContent align="start" className="w-96 p-0 border-none shadow-none bg-transparent" avoidCollisions={true}>
                     <MovieDetails movie={movie} />
                   </PopoverContent>
                 </Popover>

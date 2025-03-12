@@ -41,7 +41,6 @@ const GameHostView: React.FC<GameHostViewProps> = ({
 
       {/* Movie & Information (Center) */}
       <div className="w-1/2 flex flex-col items-center text-center">
-        <h1 className="text-4xl font-bold">Host Game</h1>
         {!isMatchingStarted ? (
           <Button onClick={onStartMatching} disabled={joinedUsersCount < 1}>
             Start Matching {joinedUsersCount < 1 && "(Waiting for users)"}
