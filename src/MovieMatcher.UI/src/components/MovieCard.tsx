@@ -11,7 +11,7 @@ interface MovieCardProps {
 
 const MovieCard: React.FC<MovieCardProps> = ({ movie, onSwipe }) => {
   return (
-    <div className="p-4 border rounded-lg shadow-lg bg-white dark:bg-gray-900 max-w-md mx-auto">
+    <div className="p-4 border rounded-lg shadow-lg bg-white dark:bg-gray-900 mx-auto">
       {/* Reusing MovieDetails component */}
       <MovieDetails movie={movie} />
 

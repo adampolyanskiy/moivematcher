@@ -24,7 +24,7 @@ const MatchList: React.FC<MatchListProps> = ({ matches, movieQueue }) => {
       </CardHeader>
 
       <CardContent>
-        <ul className="mt-2 space-y-3">
+        <ul className="mt-2 space-y-3 max-h-[400px] overflow-y-auto pr-2">
           {matches.map((movieId) => {
             const movie = movieQueue.find((m) => m.id === movieId);
             if (!movie) return null; // Skip if movie is not found
