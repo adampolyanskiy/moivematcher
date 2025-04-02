@@ -1,6 +1,6 @@
 "use client";
 import { MovieDto } from "@/types";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,11 @@ interface MovieDetailsProps {
 
 const MovieDetails: React.FC<MovieDetailsProps> = ({ movie }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+
+  useEffect(() => {
+    // Reset expanded state when movie changes
+    setIsExpanded(false);
+  }, [movie.id]); // Reset when movie ID changes
 
   const toggleOverview = () => {
     setIsExpanded(!isExpanded);
@@ -66,7 +71,7 @@ const MovieDetails: React.FC<MovieDetailsProps> = ({ movie }) => {
           <p className={isExpanded ? "" : "line-clamp-3"}>
             {movie.overview}
           </p>
-          {movie.overview.length > 100 && (
+          {movie.overview && movie.overview.length > 100 && (
             <Button onClick={toggleOverview} variant="link" className="text-blue-500 hover:underline">
               {isExpanded ? "Read less" : "Read more"}
             </Button>
