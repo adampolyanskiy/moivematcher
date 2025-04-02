@@ -38,40 +38,6 @@ export default function GamePage() {
 
   // Subscribe to SignalR hub events
   useEffect(() => {
-    const handleReceiveMovie = (movie: MovieDto) => {
-      setMovieQueue((prev) => [...prev, movie]);
-      setNoMoreMovies(false);
-      toast(`Received movie: ${movie.title || "Unknown Title"}`);
-    };
-
-    const handleNoMoreMovies = () => {
-      setNoMoreMovies(true);
-      // Movies needed to display matches when there are no more movies
-      // setMovieQueue([]);
-      toast.info("No more movies available.");
-    };
-
-    const handleMatchFound = (movieId: number) => {
-      const movieName = movieQueue.find((movie) => movie.id === movieId)?.title;
-      toast.success(`Match found for movie ${movieName}!`);
-      setMatches((prev) => [...prev, movieId]);
-    };
-
-    const handleUserJoined = (connectionId: string) => {
-      setJoinedUsersCount((prev) => prev + 1);
-      toast(`User ${connectionId} joined.`);
-    };
-
-    const handleUserLeft = (connectionId: string) => {
-      setJoinedUsersCount((prev) => Math.max(prev - 1, 0));
-      toast(`User ${connectionId} left.`);
-    };
-
-    const handleSessionTerminated = (message: string) => {
-      toast.error(message);
-      router.push("/");
-    };
-
     console.log("Subscribing to SignalR hub events...");
     on("ReceiveMovie", handleReceiveMovie);
     on("NoMoreMovies", handleNoMoreMovies);
@@ -89,7 +55,7 @@ export default function GamePage() {
       off("UserLeft", handleUserLeft);
       off("SessionTerminated", handleSessionTerminated);
     };
-  }, [on, off, router, movieQueue]);
+  }, [on, off, router]);
 
   // Establish connection and join session if a sessionId is provided
   useEffect(() => {
@@ -121,6 +87,40 @@ export default function GamePage() {
     router,
     isJoinedSession,
   ]);
+
+  const handleReceiveMovie = (movie: MovieDto) => {
+    setMovieQueue((prev) => [...prev, movie]);
+    setNoMoreMovies(false);
+    toast(`Received movie: ${movie.title || "Unknown Title"}`);
+  };
+
+  const handleNoMoreMovies = () => {
+    setNoMoreMovies(true);
+    // Movies needed to display matches when there are no more movies
+    // setMovieQueue([]);
+    toast.info("No more movies available.");
+  };
+
+  const handleMatchFound = (movieId: number) => {
+    const movieName = movieQueue.find((movie) => movie.id === movieId)?.title;
+    toast.success(`Match found for movie ${movieName}!`);
+    setMatches((prev) => [...prev, movieId]);
+  };
+
+  const handleUserJoined = (connectionId: string) => {
+    setJoinedUsersCount((prev) => prev + 1);
+    toast(`User ${connectionId} joined.`);
+  };
+
+  const handleUserLeft = (connectionId: string) => {
+    setJoinedUsersCount((prev) => Math.max(prev - 1, 0));
+    toast(`User ${connectionId} left.`);
+  };
+
+  const handleSessionTerminated = (message: string) => {
+    toast.error(message);
+    router.push("/");
+  };
 
   // Host: Create new session
   const handleStartGame = async () => {
