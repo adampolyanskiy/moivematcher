@@ -43,7 +43,8 @@ public class MovieMatcherHub(
                 IncludeAdult = session.Options.IncludeAdult,
                 StartYear = session.Options.StartYear,
                 EndYear = session.Options.EndYear,
-                GenreIds = session.Options.GenreIds
+                GenreIds = session.Options.GenreIds,
+                Page = session.CurrentPage
             });
 
         logger.LogDebug("Session {SessionId} has {MovieCount} movies queued for swiping", sessionId,
@@ -55,10 +56,10 @@ public class MovieMatcherHub(
             throw new HubException("No movies found.");
         }
 
-        foreach (var movieToEnqueue in movies.Results)
-        {
-            session.EnqueueMovie(movieToEnqueue);
-        }
+        session.CurrentPage = movies.Page;
+        session.TotalPages = movies.TotalPages;
+
+        session.EnqueueMovies(movies.Results);
 
         foreach (var connectionId in session.ConnectionIds)
         {
@@ -102,15 +103,27 @@ public class MovieMatcherHub(
             }
         }
 
-        if (session.TryDequeueMovie(Context.ConnectionId, out var movie))
+        var movie = await session.GetNextMovieAsync(Context.ConnectionId, async page =>
+        {
+            var result = await movieService.SearchMoviesAsync(new SearchMoviesParams
+            {
+                IncludeAdult = session.Options.IncludeAdult,
+                StartYear = session.Options.StartYear,
+                EndYear = session.Options.EndYear,
+                GenreIds = session.Options.GenreIds,
+                Page = page
+            });
+
+            session.TotalPages = result.TotalPages;
+            return result.Results;
+        });
+
+        if (movie != null)
         {
             await Clients.Client(Context.ConnectionId).SendAsync("ReceiveMovie", movie);
         }
         else
         {
-            logger.LogDebug(
-                "No more movies left to swipe for client {ConnectionId} in session {SessionId}",
-                Context.ConnectionId, sessionId);
             await Clients.Client(Context.ConnectionId).SendAsync("NoMoreMovies");
         }
     }
@@ -194,7 +207,7 @@ public class MovieMatcherHub(
         {
             return;
         }
-        
+
         await TerminateSessionAsync(session);
     }
 
@@ -229,7 +242,7 @@ public class MovieMatcherHub(
 
         await base.OnDisconnectedAsync(exception);
     }
-    
+
     private async Task TerminateSessionAsync(Session session)
     {
         await Clients.Group(session.Id).SendAsync("SessionTerminated", "Host has left the session.");

@@ -45,6 +45,13 @@ public class Session
 
     private readonly object _connectionLock = new();
     private readonly object _movieLikeLock = new();
+    private readonly SemaphoreSlim _fetchGate = new(1, 1);
+
+    private bool _isFetching;
+    private TaskCompletionSource<bool>? _fetchCompletionSource;
+
+    public int CurrentPage { get; set; } = 1;
+    public int TotalPages { get; set; }
 
     /// <summary>
     /// Attempts to add a connection to the session.
@@ -82,15 +89,23 @@ public class Session
     /// <returns><see langword="true"/> if the connection is in the session, otherwise <see langword="false"/>.</returns>
     public bool ContainsConnection(string connectionId) => _connectionIds.ContainsKey(connectionId);
 
-    /// <summary>
-    /// Enqueues a movie for all users in the session.
-    /// </summary>
-    /// <param name="movie">The movie to enqueue.</param>
-    public void EnqueueMovie(Movie movie)
+    private void EnqueueMovie(Movie movie)
     {
         foreach (var queue in _userMovieQueues.Values)
         {
             queue.Enqueue(movie);
+        }
+    }
+
+    /// <summary>
+    /// Enqueues movies for all users in the session.
+    /// </summary>
+    /// <param name="movies">The movie to enqueue.</param>
+    public void EnqueueMovies(List<Movie> movies)
+    {
+        foreach (var movie in movies)
+        {
+            EnqueueMovie(movie);
         }
     }
 
@@ -106,7 +121,7 @@ public class Session
 
         return _userMovieQueues.TryGetValue(connectionId, out var queue) && queue.TryDequeue(out movie);
     }
-    
+
     /// <summary>
     /// Adds a like for a movie by a user in the session, and checks if a match exists.
     /// </summary>
@@ -121,7 +136,77 @@ public class Session
             return MatchExists(movieId);
         }
     }
-    
+
+    public async Task<Movie?> GetNextMovieAsync(string connectionId, Func<int, Task<List<Movie>>> movieFetcher)
+    {
+        Task<bool>? waitTask = null;
+        var pageToFetch = 0;
+        Movie? movie;
+
+        await _fetchGate.WaitAsync();
+        try
+        {
+            if (TryDequeueMovie(connectionId, out movie))
+            {
+                return movie;
+            }
+
+            if (_isFetching)
+            {
+                waitTask = _fetchCompletionSource?.Task;
+            }
+            else if (CurrentPage < TotalPages)
+            {
+                _isFetching = true;
+                _fetchCompletionSource =
+                    new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+                pageToFetch = ++CurrentPage;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        finally
+        {
+            _fetchGate.Release();
+        }
+
+        if (waitTask != null)
+        {
+            _ = await waitTask;
+            return TryDequeueMovie(connectionId, out movie) ? movie : null;
+        }
+
+        var enqueued = false;
+
+        try
+        {
+            var movies = await movieFetcher(pageToFetch);
+            if (movies.Count > 0)
+            {
+                EnqueueMovies(movies);
+                enqueued = true;
+            }
+        }
+        finally
+        {
+            await _fetchGate.WaitAsync();
+            try
+            {
+                _isFetching = false;
+                _fetchCompletionSource?.TrySetResult(enqueued);
+                _fetchCompletionSource = null;
+            }
+            finally
+            {
+                _fetchGate.Release();
+            }
+        }
+
+        return TryDequeueMovie(connectionId, out movie) ? movie : null;
+    }
+
     /// <summary>
     /// Adds a like for a movie by a user in the session.
     /// </summary>
