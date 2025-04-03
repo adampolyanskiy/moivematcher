@@ -26,31 +26,35 @@ const MatchList: React.FC<MatchListProps> = ({ matches, movieQueue }) => {
       </CardHeader>
 
       <CardContent>
-        <ul className="mt-2 space-y-3 max-h-[400px] overflow-y-auto pr-2">
-          {matches.map((movieId) => {
-            const movie = movieQueue.find((m) => m.id === movieId);
-            if (!movie) return null; // Skip if movie is not found
+        {matches.length === 0 ? (
+          <p className="text-gray-500 dark:text-gray-400">No matches yet</p>
+        ) : (
+          <ul className="mt-2 space-y-3 max-h-[400px] overflow-y-auto pr-2">
+            {matches.map((movieId) => {
+              const movie = movieQueue.find((m) => m.id === movieId);
+              if (!movie) return null; // Skip if movie is not found
 
-            return (
-              <li
-                key={movie.id}
-                className="text-blue-600 dark:text-blue-400 font-medium"
-              >
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <button className="hover:underline text-left w-full">
-                      {movie.title}
-                    </button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl p-0">
-                    <VisuallyHidden asChild><DialogTitle>Movie Details for {movie.title}</DialogTitle></VisuallyHidden>
-                    <MovieDetails movie={movie} />
-                  </DialogContent>
-                </Dialog>
-              </li>
-            );
-          })}
-        </ul>
+              return (
+                <li
+                  key={movie.id}
+                  className="text-blue-600 dark:text-blue-400 font-medium"
+                >
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <button className="hover:underline text-left w-full">
+                        {movie.title}
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl p-0">
+                      <VisuallyHidden asChild><DialogTitle>Movie Details for {movie.title}</DialogTitle></VisuallyHidden>
+                      <MovieDetails movie={movie} />
+                    </DialogContent>
+                  </Dialog>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </CardContent>
     </Card>
   );
