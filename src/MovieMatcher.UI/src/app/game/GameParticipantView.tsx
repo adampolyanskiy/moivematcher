@@ -51,11 +51,6 @@ const GameParticipantView: React.FC<GameParticipantViewProps> = ({
           </p>
         )}
       </div>
-
-      {/* Session Info (Right) */}
-      <div className="w-1/4">
-        <SessionInfo sessionId={sessionId} />
-      </div>
     </div>
   );
 };
