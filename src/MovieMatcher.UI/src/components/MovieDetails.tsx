@@ -18,7 +18,7 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
-import { X } from "lucide-react";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface MovieDetailsProps {
   movie: MovieDto;
@@ -56,7 +56,7 @@ const MovieDetails: React.FC<MovieDetailsProps> = ({ movie }) => {
                 </div>
               </DialogTrigger>
               <DialogContent className="max-w-[95vw] max-h-[95vh] w-full h-full p-0 border-0">
-                <DialogTitle className="sr-only" asChild>Movie Poster</DialogTitle>
+                <VisuallyHidden asChild><DialogTitle>Movie Poster</DialogTitle></VisuallyHidden>
                 <div className="relative w-full h-[95vh]">
                   <Image
                     src={`https://image.tmdb.org/t/p/original${movie.posterPath}`}
