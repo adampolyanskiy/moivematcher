@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMovieMatcherHub } from "@/hooks/useMovieMatcherHub";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import GameHostView from "./GameHostView";
 import GameParticipantView from "./GameParticipantView";
 import { Button } from "@/components/ui/button";
@@ -33,8 +33,14 @@ export default function GamePage() {
   const [joinedUsersCount, setJoinedUsersCount] = useState(0);
   const [isMatchingStarted, setIsMatchingStarted] = useState(false);
   const [movieQueue, setMovieQueue] = useState<MovieDto[]>([]);
+  const movieQueueRef = useRef<MovieDto[]>([]);
   const [matches, setMatches] = useState<number[]>([]);
   const [noMoreMovies, setNoMoreMovies] = useState(false);
+
+  // Update ref whenever movieQueue changes
+  useEffect(() => {
+    movieQueueRef.current = movieQueue;
+  }, [movieQueue]);
 
   // Subscribe to SignalR hub events
   useEffect(() => {
@@ -102,7 +108,7 @@ export default function GamePage() {
   };
 
   const handleMatchFound = (movieId: number) => {
-    const movieName = movieQueue.find((movie) => movie.id === movieId)?.title;
+    const movieName = movieQueueRef.current.find((movie) => movie.id === movieId)?.title;
     toast.success(`Match found for movie ${movieName}!`);
     setMatches((prev) => [...prev, movieId]);
   };
