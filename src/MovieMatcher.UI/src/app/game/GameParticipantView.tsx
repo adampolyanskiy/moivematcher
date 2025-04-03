@@ -25,16 +25,16 @@ const GameParticipantView: React.FC<GameParticipantViewProps> = ({
 }) => {
   const currentMovie = movieQueue[movieQueue.length - 1] || null;
   return (
-    <div className="flex flex-row items-start justify-center gap-8 p-6">
-      {/* Match List (Left) */}
-      <div className="w-1/4">
-        {matches.length > 0 && (
+    <div className="grid grid-cols-[1fr_2fr_1fr] gap-8 p-6 h-[80vh]">
+      {/* Left Column */}
+      <div className="h-full">
+        {isMatchingStarted && (
           <MatchList movieQueue={movieQueue} matches={matches} />
         )}
       </div>
 
-      {/* Movie & Information (Center) */}
-      <div className="w-1/2 flex flex-col items-center text-center">
+      {/* Center Column - Movie Card */}
+      <div className="text-center">
         {!isMatchingStarted ? (
           <p className="text-gray-700 dark:text-gray-300">
             Waiting for host to start matching...
@@ -50,6 +50,11 @@ const GameParticipantView: React.FC<GameParticipantViewProps> = ({
             Waiting for next movie...
           </p>
         )}
+      </div>
+
+      {/* Right Column */}
+      <div>
+        {/* Reserved for future content */}
       </div>
     </div>
   );
