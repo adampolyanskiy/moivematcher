@@ -37,11 +37,11 @@ const MovieDetails: React.FC<MovieDetailsProps> = ({ movie }) => {
   };
 
   return (
-    <Card className="p-4 border rounded-lg shadow-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 w-[500px] h-[600px] mx-auto overflow-y-auto">
-      <CardContent className="pt-2">
+    <Card className="border rounded-lg shadow-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 overflow-y-auto">
+      <CardContent className="p-4">
         {/* Movie Poster (Enlarged) */}
         {movie.posterPath && (
-          <div className="w-full h-80 rounded-lg overflow-hidden">
+          <div className="w-full h-[300px] rounded-lg overflow-hidden">
             <Dialog>
               <DialogTrigger asChild>
                 <div className="relative w-full h-full cursor-pointer transition-transform hover:scale-105">

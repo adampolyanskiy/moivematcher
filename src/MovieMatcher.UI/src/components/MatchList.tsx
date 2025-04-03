@@ -2,12 +2,14 @@
 import { MovieDto } from "@/types";
 import React from "react";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import MovieDetails from "./MovieDetails";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface MatchListProps {
   matches: number[];
@@ -34,14 +36,17 @@ const MatchList: React.FC<MatchListProps> = ({ matches, movieQueue }) => {
                 key={movie.id}
                 className="text-blue-600 dark:text-blue-400 font-medium"
               >
-                <Popover>
-                  <PopoverTrigger className="hover:underline">
-                    {movie.title}
-                  </PopoverTrigger>
-                  <PopoverContent align="start" className="w-96 p-0 border-none shadow-none bg-transparent" avoidCollisions={true}>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <button className="hover:underline text-left w-full">
+                      {movie.title}
+                    </button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl p-0">
+                    <VisuallyHidden asChild><DialogTitle>Movie Details for {movie.title}</DialogTitle></VisuallyHidden>
                     <MovieDetails movie={movie} />
-                  </PopoverContent>
-                </Popover>
+                  </DialogContent>
+                </Dialog>
               </li>
             );
           })}
