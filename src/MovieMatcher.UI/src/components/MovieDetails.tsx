@@ -4,12 +4,21 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { format, parseISO } from "date-fns";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogTitle,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { X } from "lucide-react";
 
 interface MovieDetailsProps {
   movie: MovieDto;
@@ -33,13 +42,33 @@ const MovieDetails: React.FC<MovieDetailsProps> = ({ movie }) => {
         {/* Movie Poster (Enlarged) */}
         {movie.posterPath && (
           <div className="w-full h-80 rounded-lg overflow-hidden">
-            <Image
-              src={`https://image.tmdb.org/t/p/w500${movie.posterPath}`}
-              alt={movie.title}
-              width={500}
-              height={750}
-              className="w-full h-full object-contain"
-            />
+            <Dialog>
+              <DialogTrigger asChild>
+                <div className="relative w-full h-full cursor-pointer transition-transform hover:scale-105">
+                  <Image
+                    src={`https://image.tmdb.org/t/p/w500${movie.posterPath}`}
+                    alt={movie.title}
+                    fill
+                    sizes="(max-width: 500px) 100vw, 500px"
+                    className="object-contain"
+                    priority
+                  />
+                </div>
+              </DialogTrigger>
+              <DialogContent className="max-w-[95vw] max-h-[95vh] w-full h-full p-0 border-0">
+                <DialogTitle className="sr-only" asChild>Movie Poster</DialogTitle>
+                <div className="relative w-full h-[95vh]">
+                  <Image
+                    src={`https://image.tmdb.org/t/p/original${movie.posterPath}`}
+                    alt={movie.title}
+                    fill
+                    sizes="95vw"
+                    className="object-contain bg-black/95"
+                    priority
+                  />
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         )}
 
@@ -62,7 +91,7 @@ const MovieDetails: React.FC<MovieDetailsProps> = ({ movie }) => {
         {/* Release Date */}
         {movie.releaseDate && (
           <p className="text-gray-600 dark:text-gray-400 text-sm flex items-center justify-center gap-1">
-            📅 Released: {movie.releaseDate}
+            📅 Released: {format(parseISO(movie.releaseDate), 'MMMM d, yyyy')}
           </p>
         )}
 
