@@ -96,7 +96,7 @@ public class MovieMatcherHub(
 
         if (isLiked)
         {
-            if (session.AddLikeAndCheckMatch(movieId, Context.ConnectionId))
+            if (session.TryDetectNewMatch(movieId, Context.ConnectionId))
             {
                 logger.LogDebug("Movie {MovieId} matched by all users in session {SessionId}", movieId, sessionId);
                 await Clients.Group(sessionId).SendAsync("MatchFound", movieId);

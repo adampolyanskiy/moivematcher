@@ -123,16 +123,25 @@ public class Session
     }
 
     /// <summary>
-    /// Adds a like for a movie by a user in the session, and checks if a match exists.
+    /// Checks if a match already exists and if not, adds a like and checks if this results in a new match.
     /// </summary>
     /// <param name="movieId">The ID of the movie.</param>
     /// <param name="connectionId">The connection ID of the user.</param>
-    /// <returns><see langword="true"/> if a match exists, otherwise <see langword="false"/>.</returns>
-    public bool AddLikeAndCheckMatch(int movieId, string connectionId)
+    /// <returns><see langword="true"/> if a new match was detected, <see langword="false"/> if match already existed or no match was detected.</returns>
+    public bool TryDetectNewMatch(int movieId, string connectionId)
     {
         lock (_movieLikeLock)
         {
+            // If match already exists, don't bother adding the like
+            if (MatchExists(movieId))
+            {
+                return false;
+            }
+            
+            // No match exists yet, add the like
             AddMovieLike(movieId, connectionId);
+            
+            // Check if this resulted in a new match
             return MatchExists(movieId);
         }
     }
