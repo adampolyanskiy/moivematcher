@@ -31,16 +31,17 @@ const GameHostView: React.FC<GameHostViewProps> = ({
 }) => {
   const currentMovie = movieQueue[movieQueue.length - 1] || null;
   return (
-    <div className="grid grid-cols-[1fr_2fr_1fr] gap-8 p-6">
+    <div className="flex justify-between p-6 gap-8 h-[750px]">
       {/* Match List (Left) */}
-      <div>
+      <div className="w-1/4">
         {isMatchingStarted && (
           <MatchList movieQueue={movieQueue} matches={matches} />
         )}
       </div>
 
+
       {/* Movie & Information (Center) */}
-      <div className="text-center">
+      <div className="text-center w-2/4">
         {!isMatchingStarted ? (
           <Button onClick={onStartMatching} disabled={joinedUsersCount < 1}>
             Start Matching {joinedUsersCount < 1 && "(Waiting for users)"}
@@ -59,7 +60,7 @@ const GameHostView: React.FC<GameHostViewProps> = ({
       </div>
 
       {/* Session Info & Preferences (Right) */}
-      <div className="flex flex-col items-center gap-6">
+      <div className="flex flex-col items-center gap-6 w-1/4">
         <SessionInfo sessionId={sessionId} />
         <SessionPreferences />
       </div>

@@ -37,8 +37,8 @@ const MovieDetails: React.FC<MovieDetailsProps> = ({ movie }) => {
   };
 
   return (
-    <Card className="border rounded-lg shadow-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 overflow-y-auto">
-      <CardContent className="p-4">
+    <Card className="h-full border rounded-lg shadow-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 overflow-y-auto">
+      <CardContent className="p-4 h-full">
         {/* Movie Poster (Enlarged) */}
         {movie.posterPath && (
           <div className="w-full h-[300px] rounded-lg overflow-hidden">

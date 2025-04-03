@@ -18,18 +18,18 @@ interface MatchListProps {
 
 const MatchList: React.FC<MatchListProps> = ({ matches, movieQueue }) => {
   return (
-    <Card className="w-full max-w-sm bg-white dark:bg-gray-900 shadow-lg border border-gray-300 dark:border-gray-700 p-4">
+    <Card className="w-full h-full max-w-sm bg-white dark:bg-gray-900 shadow-lg border border-gray-300 dark:border-gray-700 p-4">
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100">
           Matched Movies 🎬
         </CardTitle>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="h-full overflow-y-auto">
         {matches.length === 0 ? (
           <p className="text-gray-500 dark:text-gray-400">No matches yet</p>
         ) : (
-          <ul className="mt-2 space-y-3 max-h-[400px] overflow-y-auto pr-2">
+          <ul className="h-full mt-2 space-y-3 pr-2">
             {matches.map((movieId) => {
               const movie = movieQueue.find((m) => m.id === movieId);
               if (!movie) return null; // Skip if movie is not found

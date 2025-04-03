@@ -11,9 +11,11 @@ interface MovieCardProps {
 
 const MovieCard: React.FC<MovieCardProps> = ({ movie, onSwipe }) => {
   return (
-    <div className="p-4 border rounded-lg shadow-lg bg-white dark:bg-gray-900 mx-auto">
+    <div className="h-full p-4 border rounded-lg shadow-lg bg-white dark:bg-gray-900 mx-auto">
       {/* Reusing MovieDetails component */}
-      <MovieDetails movie={movie} />
+      <div className="h-[600px]">
+        <MovieDetails movie={movie} />
+      </div>
 
       {/* Action Buttons */}
       <div className="mt-4 flex justify-around">
