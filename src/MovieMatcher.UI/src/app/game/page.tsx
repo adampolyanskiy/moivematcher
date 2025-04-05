@@ -8,6 +8,8 @@ import GameHostView from "./GameHostView";
 import GameParticipantView from "./GameParticipantView";
 import { Button } from "@/components/ui/button";
 import { MovieDto } from "@/types";
+import { useGameStorage } from "@/hooks/useGameStorage";
+import { MovieMatch } from "@/services/gameStorageService";
 
 export default function GamePage() {
   const {
@@ -24,6 +26,7 @@ export default function GamePage() {
     isJoinedSession,
     disconnect
   } = useMovieMatcherHub();
+  const { saveGame, addMatchToGame } = useGameStorage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionIdFromParam = searchParams.get("sid");
@@ -39,11 +42,28 @@ export default function GamePage() {
   const movieQueueRef = useRef<MovieDto[]>([]);
   const [matches, setMatches] = useState<number[]>([]);
   const [noMoreMovies, setNoMoreMovies] = useState(false);
+  const [currentGameId, setCurrentGameId] = useState<number | null>(null);
 
   // Update ref whenever movieQueue changes
   useEffect(() => {
     movieQueueRef.current = movieQueue;
   }, [movieQueue]);
+
+  useEffect(() => {
+    if (matches.length === 0) return;
+
+    const lastMatchedMovieId = matches[matches.length - 1];
+    const movie = movieQueueRef.current.find((m) => m.id === lastMatchedMovieId);
+    if (!movie) return;
+
+    const movieMatch = {
+      title: movie.title,
+      overview: movie.overview,
+      posterPath: movie.posterPath
+    };
+
+    storeMatch(movie, movieMatch, matches.slice(0, -1));
+  }, [matches]);
 
   // Subscribe to SignalR hub events
   useEffect(() => {
@@ -118,9 +138,30 @@ export default function GamePage() {
   };
 
   const handleMatchFound = (movieId: number) => {
-    const movieName = movieQueueRef.current.find((movie) => movie.id === movieId)?.title;
-    toast.success(`Match found for movie ${movieName}!`);
+    const movie = movieQueueRef.current.find((movie) => movie.id === movieId);
+
+    if (!movie) {
+      console.error("Movie not found in queue.");
+      return;
+    }
+
+    toast.success(`Match found for movie ${movie.title}!`);
     setMatches((prev) => [...prev, movieId]);
+  };
+
+  const storeMatch = async (movie: MovieDto, movieMatch: MovieMatch, prevMatches: number[]) => {
+    if (prevMatches.length === 0) {
+      const newGameId = await saveGame([movieMatch]);
+      if (newGameId) {
+        setCurrentGameId(newGameId);
+        console.log(`New game created with ID: ${newGameId}`);
+      }
+      else {
+        console.error("Failed to create new game in storage");
+      }
+    } else if (currentGameId) {
+      await addMatchToGame(currentGameId, movieMatch);
+    }
   };
 
   const handleUserJoined = (connectionId: string) => {
