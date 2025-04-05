@@ -11,7 +11,7 @@ public class MovieMatcherHub(
     ILogger<MovieMatcherHub> logger)
     : Hub
 {
-    public async Task StartSwipingAsync(string sessionId)
+    public async Task StartMatchingAsync(string sessionId)
     {
         logger.LogDebug(
             "User {ConnectionId} is starting swiping for session {SessionId}",
@@ -74,6 +74,8 @@ public class MovieMatcherHub(
             logger.LogDebug("Only one movie found for session {SessionId}, notifying all clients", sessionId);
             await Clients.Group(sessionId).SendAsync("NoMoreMovies");
         }
+        
+        await Clients.Group(sessionId).SendAsync("MatchingStarted");
     }
 
     public async Task SwipeMovieAsync(string sessionId, int movieId, bool isLiked)
@@ -210,6 +212,31 @@ public class MovieMatcherHub(
 
         await TerminateSessionAsync(session);
     }
+    
+    public async Task FinishMatchingAsync(string sessionId)
+    {
+        logger.LogDebug(
+            "User {ConnectionId} is attempting to finish matching for session {SessionId}",
+            Context.ConnectionId,
+            sessionId);
+
+        var session = sessionStorage.Get(sessionId);
+        if (session == null)
+        {
+            logger.LogWarning("Session {SessionId} not found", sessionId);
+            throw new HubException("Session not found.");
+        }
+
+        if (session.HostConnectionId != Context.ConnectionId)
+        {
+            logger.LogWarning("User {ConnectionId} is not the host of session {SessionId}", Context.ConnectionId,
+                sessionId);
+            throw new HubException("You are not the host of this session.");
+        }
+
+        await Clients.Group(sessionId).SendAsync("MatchingComplete", "Host has finished the matching session.");
+        await TerminateSessionAsync(session, false);
+    }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
@@ -243,9 +270,12 @@ public class MovieMatcherHub(
         await base.OnDisconnectedAsync(exception);
     }
 
-    private async Task TerminateSessionAsync(Session session)
+    private async Task TerminateSessionAsync(Session session, bool notifyConnections = true)
     {
-        await Clients.Group(session.Id).SendAsync("SessionTerminated", "Host has left the session.");
+        if (notifyConnections)
+        {
+            await Clients.Group(session.Id).SendAsync("SessionTerminated", "Host has left the session.");
+        }
 
         foreach (var connId in session.ConnectionIds.ToList())
         {
