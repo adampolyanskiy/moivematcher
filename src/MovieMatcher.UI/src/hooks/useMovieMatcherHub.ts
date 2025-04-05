@@ -15,6 +15,7 @@ export const useMovieMatcherHub = () => {
   );
   const [connecting, setConnecting] = useState(false);
   const contextRef = useRef<ConnectionContext>(connectionContext);
+  const [disconnecting, setDisconnecting] = useState(false);
 
   const connect = useCallback(
     async (options?: SessionOptions) => {
@@ -49,9 +50,13 @@ export const useMovieMatcherHub = () => {
   }, []);
 
   const disconnect = useCallback(async () => {
+    setDisconnecting(true);
     await signalRConnectionManager.stopConnection();
-    setIsConnected(false);
     cleanSession();
+    setTimeout(() => {
+      setDisconnecting(false);
+      setIsConnected(false);
+    }, 1000);
   }, [cleanSession]);
 
   const createSession = useCallback(async (): Promise<string | null> => {
@@ -89,10 +94,10 @@ export const useMovieMatcherHub = () => {
     cleanSession();
   }, [cleanSession]);
 
-  const startSwiping = useCallback(async (sessionId: string) => {
+  const startMatching = useCallback(async (sessionId: string) => {
     const connection = signalRConnectionManager.getConnection();
     if (!connection) return;
-    await connection.invoke("StartSwipingAsync", sessionId);
+    await connection.invoke("StartMatchingAsync", sessionId);
   }, []);
 
   const swipeMovie = useCallback(
@@ -100,6 +105,15 @@ export const useMovieMatcherHub = () => {
       const connection = signalRConnectionManager.getConnection();
       if (!connection) return;
       await connection.invoke("SwipeMovieAsync", sessionId, movieId, isLiked);
+    },
+    []
+  );
+
+  const finishMatching = useCallback(
+    async (sessionId: string) => {
+      const connection = signalRConnectionManager.getConnection();
+      if (!connection) return;
+      await connection.invoke("FinishMatchingAsync", sessionId);
     },
     []
   );
@@ -130,12 +144,14 @@ export const useMovieMatcherHub = () => {
     connect,
     disconnect,
     isConnected,
+    disconnecting,
     connecting,
     createSession,
     joinSession,
     leaveSession,
-    startSwiping,
+    startMatching,
     swipeMovie,
+    finishMatching,
     on,
     off,
     isJoinedSession,

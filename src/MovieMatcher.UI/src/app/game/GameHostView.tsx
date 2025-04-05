@@ -17,6 +17,7 @@ interface GameHostViewProps {
   noMoreMovies: boolean;
   onStartMatching: () => void;
   onSwipe: (isLiked: boolean) => void;
+  onFinishMatching: () => void;
 }
 
 const GameHostView: React.FC<GameHostViewProps> = ({
@@ -28,14 +29,19 @@ const GameHostView: React.FC<GameHostViewProps> = ({
   noMoreMovies,
   onStartMatching,
   onSwipe,
+  onFinishMatching,
 }) => {
   const currentMovie = movieQueue[movieQueue.length - 1] || null;
+
   return (
     <div className="flex justify-between p-6 gap-8 h-[750px]">
       {/* Match List (Left) */}
-      <div className="w-1/4">
+      <div className="w-1/4 flex flex-col gap-4">
         {isMatchingStarted && (
-          <MatchList movieQueue={movieQueue} matches={matches} />
+          <>
+            <MatchList movieQueue={movieQueue} matches={matches} />
+            <Button onClick={onFinishMatching}>Finish Matching</Button>
+          </>
         )}
       </div>
 

@@ -7,4 +7,6 @@ export type HubEvents  = {
   UserJoined: (connectionId: string) => void;
   UserLeft: (connectionId: string) => void;
   SessionTerminated: (message: string) => void;
+  MatchingComplete: () => void;
+  MatchingStarted: () => void;
 }

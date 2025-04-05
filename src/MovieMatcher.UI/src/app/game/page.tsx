@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMovieMatcherHub } from "@/hooks/useMovieMatcherHub";
 import { toast } from "sonner";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, use } from "react";
 import GameHostView from "./GameHostView";
 import GameParticipantView from "./GameParticipantView";
 import { Button } from "@/components/ui/button";
@@ -12,14 +12,17 @@ import { MovieDto } from "@/types";
 export default function GamePage() {
   const {
     isConnected,
-    createSession,  
+    disconnecting,
+    createSession,
     joinSession,
     connect,
     on,
     off,
-    startSwiping,
+    startMatching,
     swipeMovie,
+    finishMatching,
     isJoinedSession,
+    disconnect
   } = useMovieMatcherHub();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -51,6 +54,8 @@ export default function GamePage() {
     on("UserJoined", handleUserJoined);
     on("UserLeft", handleUserLeft);
     on("SessionTerminated", handleSessionTerminated);
+    on("MatchingComplete", handleMatchingComplete);
+    on("MatchingStarted", handleMatchingStarted);
 
     return () => {
       console.log("Unsubscribing from SignalR hub events...");
@@ -60,12 +65,14 @@ export default function GamePage() {
       off("UserJoined", handleUserJoined);
       off("UserLeft", handleUserLeft);
       off("SessionTerminated", handleSessionTerminated);
+      off("MatchingComplete", handleMatchingComplete);
+      off("MatchingStarted", handleMatchingStarted);
     };
   }, [on, off, router]);
 
   // Establish connection and join session if a sessionId is provided
   useEffect(() => {
-    if (!sessionIdFromParam) return;
+    if (!sessionIdFromParam || disconnecting) return;
     const initializeConnection = async () => {
       if (!isConnected) {
         console.log("Connecting...");
@@ -100,10 +107,13 @@ export default function GamePage() {
     toast(`Received movie: ${movie.title || "Unknown Title"}`);
   };
 
+  const handleMatchingStarted = () => {
+    setIsMatchingStarted(true);
+    toast.info("Matching started!");
+  };
+
   const handleNoMoreMovies = () => {
     setNoMoreMovies(true);
-    // Movies needed to display matches when there are no more movies
-    // setMovieQueue([]);
     toast.info("No more movies available.");
   };
 
@@ -128,6 +138,11 @@ export default function GamePage() {
     router.push("/");
   };
 
+  const handleFinishMatching = () => {
+    toast.info("Finishing matching...");
+    finishMatching(sessionId!);
+  };
+
   // Host: Create new session
   const handleStartGame = async () => {
     if (!isHost) return;
@@ -147,9 +162,7 @@ export default function GamePage() {
   const handleStartMatching = async () => {
     if (!sessionId) return;
     try {
-      await startSwiping(sessionId);
-      setIsMatchingStarted(true);
-      toast("Matching started!");
+      await startMatching(sessionId);
     } catch {
       toast.error("Failed to start matching. Please try again.");
     }
@@ -163,6 +176,18 @@ export default function GamePage() {
       await swipeMovie(sessionId, currentMovie.id, isLiked);
     } catch {
       toast.error("Failed to swipe. Please try again.");
+    }
+  };
+
+  const handleMatchingComplete = async () => {
+    try {
+      toast.info("Matching complete!");
+      await disconnect();
+    } catch (error) {
+      console.log("Connection may already be closed:", error);
+    }
+    finally {
+      router.push("/");
     }
   };
 
@@ -194,6 +219,7 @@ export default function GamePage() {
   if (isHost) {
     return sessionId ? (
       <GameHostView
+        onFinishMatching={handleFinishMatching}
         sessionId={sessionId}
         joinedUsersCount={joinedUsersCount}
         isMatchingStarted={isMatchingStarted}
@@ -214,7 +240,7 @@ export default function GamePage() {
     return (
       <GameParticipantView
         sessionId={sessionId!}
-        isMatchingStarted={movieQueue.length > 0}
+        isMatchingStarted={isMatchingStarted}
         movieQueue={movieQueue}
         matches={matches}
         noMoreMovies={noMoreMovies}
