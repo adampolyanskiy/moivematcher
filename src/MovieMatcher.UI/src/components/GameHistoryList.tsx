@@ -40,17 +40,17 @@ const GameHistoryList: React.FC = () => {
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className="w-full mx-auto">
       <CardHeader>
         <div className="flex justify-between items-center">
-          <CardTitle className="text-2xl font-bold">
+          <CardTitle className="text-xl sm:text-2xl font-bold">
             Game History 🎮
           </CardTitle>
           {games.length > 0 && (
             <Button
               variant="destructive"
               onClick={handleClearHistory}
-              className="ml-4"
+              className="ml-2 sm:ml-4"
             >
               Clear History
             </Button>
@@ -74,14 +74,14 @@ const GameHistoryList: React.FC = () => {
                 href={`/history/${game.id}`}
                 className="block"
               >
-                <div className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">Game #{game.id}</span>
-                    <span className="text-sm text-gray-500">
+                <div className="flex items-center justify-between p-2 sm:p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                  <div className="flex items-center gap-1 sm:gap-2">
+                    <span className="font-medium text-sm sm:text-base">Game #{game.id}</span>
+                    <span className="text-xs sm:text-sm text-gray-500">
                       ({game.matches.length} matches)
                     </span>
                   </div>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-xs sm:text-sm text-gray-500">
                     {format(new Date(game.timestamp), 'MMM d, yyyy')}
                   </span>
                 </div>

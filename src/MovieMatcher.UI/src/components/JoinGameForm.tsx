@@ -18,7 +18,7 @@ export default function JoinGameForm() {
   };
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full max-w-sm">
+    <div className="flex flex-col items-center gap-3 sm:gap-4 w-full px-4 sm:px-0 max-w-sm">
       <Input
         type="text"
         placeholder="Enter session code"

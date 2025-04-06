@@ -98,22 +98,22 @@ export default function CreateGameDialog() {
       <DialogTrigger asChild>
         <Button className="mt-4">Create New Game</Button>
       </DialogTrigger>
-      <DialogContent>
-        <DialogTitle>Set up your preferences</DialogTitle>
+      <DialogContent className="sm:max-w-[425px] p-4 sm:p-6">
+        <DialogTitle className="text-lg sm:text-xl">Set up your preferences</DialogTitle>
         <Form {...form}>
-          <form className="space-y-8">
+          <form className="space-y-6 sm:space-y-8">
             <FormField
               control={form.control}
               name="includeAdult"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start">
+                <FormItem className="flex flex-row items-start space-x-2 sm:space-x-3">
                   <FormControl>
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
                     />
                   </FormControl>
-                  <FormLabel>Include Adult Movies</FormLabel>
+                  <FormLabel className="text-sm sm:text-base">Include Adult Movies</FormLabel>
                   <FormMessage />
                 </FormItem>
               )}
@@ -175,9 +175,9 @@ export default function CreateGameDialog() {
             />
           </form>
         </Form>
-        <DialogFooter>
+        <DialogFooter className="mt-6">
           <DialogClose asChild>
-            <Button type="button" variant="secondary">
+            <Button type="button" variant="secondary" className="w-full sm:w-auto">
               Close
             </Button>
           </DialogClose>
@@ -185,6 +185,7 @@ export default function CreateGameDialog() {
             variant="default"
             onClick={handleCreateGame}
             disabled={loading || connecting}
+            className="w-full sm:w-auto"
           >
             {loading || connecting ? "Connecting..." : "Start"}
           </Button>

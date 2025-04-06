@@ -18,7 +18,7 @@ interface MatchListProps {
 
 const MatchList: React.FC<MatchListProps> = ({ matches, movieQueue }) => {
   return (
-    <Card className="w-full h-full max-w-sm bg-white dark:bg-gray-900 shadow-lg border border-gray-300 dark:border-gray-700 p-4">
+    <Card className="w-full h-full bg-white dark:bg-gray-900 shadow-lg border border-gray-300 dark:border-gray-700 p-4">
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100">
           Matched Movies 🎬
