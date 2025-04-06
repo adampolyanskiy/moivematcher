@@ -43,11 +43,17 @@ export default function GamePage() {
   const [matches, setMatches] = useState<number[]>([]);
   const [noMoreMovies, setNoMoreMovies] = useState(false);
   const [currentGameId, setCurrentGameId] = useState<number | null>(null);
+  const currentGameIdRef = useRef<number | null>(null);
 
   // Update ref whenever movieQueue changes
   useEffect(() => {
     movieQueueRef.current = movieQueue;
   }, [movieQueue]);
+
+  // Update ref whenever currentGameId changes
+  useEffect(() => {
+    currentGameIdRef.current = currentGameId;
+  }, [currentGameId]);
 
   useEffect(() => {
     if (matches.length === 0) return;
@@ -228,7 +234,12 @@ export default function GamePage() {
       console.log("Connection may already be closed:", error);
     }
     finally {
-      router.push("/");
+      if (currentGameIdRef.current) {
+        router.push(`/history/${currentGameIdRef.current}`);
+      }
+      else {
+        router.push("/");
+      }
     }
   };
 
