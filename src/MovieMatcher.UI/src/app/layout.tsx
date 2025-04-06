@@ -5,6 +5,7 @@ import { ModeToggle } from "@/components/ModeToggle";
 import { Toaster } from "sonner";
 import { Suspense } from "react";
 import { Spotlight } from "@/components/ui/spotlight-new";
+import Background from "@/components/Background";
 
 export const metadata: Metadata = {
   title: "Movie Matcher",

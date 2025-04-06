@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { MovieDto } from "@/types";
 import { useGameStorage } from "@/hooks/useGameStorage";
 import { MovieMatch } from "@/services/gameStorageService";
+import Background from "@/components/Background";
 
 export default function GamePage() {
   const {
@@ -246,58 +247,68 @@ export default function GamePage() {
   // Render connection state
   if (!isConnected && sessionIdFromParam) {
     return (
-      <div className="flex flex-col items-center justify-center text-center">
-        <h1 className="text-3xl font-bold text-red-600">Connecting...</h1>
-        <p className="text-gray-700 dark:text-gray-300">
-          Attempting to connect to the session. Please wait.
-        </p>
-      </div>
+      <Background>
+        <div className="flex flex-col items-center justify-center text-center">
+          <h1 className="text-3xl font-bold text-red-600">Connecting...</h1>
+          <p className="text-gray-700 dark:text-gray-300">
+            Attempting to connect to the session. Please wait.
+          </p>
+        </div>
+      </Background>
     );
   }
   if (!isConnected && !sessionIdFromParam) {
     return (
-      <div className="flex flex-col items-center justify-center text-center">
-        <h1 className="text-3xl font-bold text-red-600">No Connection</h1>
-        <p className="text-gray-700 dark:text-gray-300 mb-4">
-          You are not connected to the game server. Please return to the home
-          page and create a game.
-        </p>
-        <Button onClick={() => router.push("/")}>Return to Home</Button>
-      </div>
+      <Background>
+        <div className="flex flex-col items-center justify-center text-center">
+          <h1 className="text-3xl font-bold text-red-600">No Connection</h1>
+          <p className="text-gray-700 dark:text-gray-300 mb-4">
+            You are not connected to the game server. Please return to the home
+            page and create a game.
+          </p>
+          <Button onClick={() => router.push("/")}>Return to Home</Button>
+        </div>
+      </Background>
     );
   }
 
   // Render based on user role
   if (isHost) {
     return sessionId ? (
-      <GameHostView
-        onFinishMatching={handleFinishMatching}
-        sessionId={sessionId}
-        joinedUsersCount={joinedUsersCount}
-        isMatchingStarted={isMatchingStarted}
-        movieQueue={movieQueue}
-        matches={matches}
-        noMoreMovies={noMoreMovies}
-        onStartMatching={handleStartMatching}
-        onSwipe={handleSwipe}
-      />
+      <Background>
+        <GameHostView
+          onFinishMatching={handleFinishMatching}
+          sessionId={sessionId}
+          joinedUsersCount={joinedUsersCount}
+          isMatchingStarted={isMatchingStarted}
+          movieQueue={movieQueue}
+          matches={matches}
+          noMoreMovies={noMoreMovies}
+          onStartMatching={handleStartMatching}
+          onSwipe={handleSwipe}
+        />
+      </Background>
     ) : (
-      <div className="flex flex-col items-center justify-center text-center">
-        <Button className="mt-4" onClick={handleStartGame}>
-          Start a New Game
-        </Button>
-      </div>
+      <Background>
+        <div className="flex flex-col items-center justify-center text-center">
+          <Button className="mt-4" onClick={handleStartGame}>
+            Start a New Game
+          </Button>
+        </div>
+      </Background>
     );
   } else {
     return (
-      <GameParticipantView
-        sessionId={sessionId!}
-        isMatchingStarted={isMatchingStarted}
-        movieQueue={movieQueue}
-        matches={matches}
-        noMoreMovies={noMoreMovies}
-        onSwipe={handleSwipe}
-      />
+      <Background>
+        <GameParticipantView
+          sessionId={sessionId!}
+          isMatchingStarted={isMatchingStarted}
+          movieQueue={movieQueue}
+          matches={matches}
+          noMoreMovies={noMoreMovies}
+          onSwipe={handleSwipe}
+        />
+      </Background>
     );
   }
 }
