@@ -2,10 +2,11 @@
 import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import GameHistoryItem from "./GameHistoryItem";
 import { useGameStorage } from "@/hooks/useGameStorage";
 import { Game } from "@/services/gameStorageService";
 import { toast } from "sonner";
+import Link from "next/link";
+import { format } from "date-fns";
 
 const GameHistoryList: React.FC = () => {
   const { getGames, clearAllGames } = useGameStorage();
@@ -66,14 +67,25 @@ const GameHistoryList: React.FC = () => {
             No games played yet
           </p>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-2">
             {games.map((game) => (
-              <GameHistoryItem
+              <Link
                 key={game.id}
-                gameId={game.id?.toString() ?? "unknown"}
-                date={new Date(game.timestamp)}
-                matchedMovies={game.matches}
-              />
+                href={`/history/${game.id}`}
+                className="block"
+              >
+                <div className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">Game #{game.id}</span>
+                    <span className="text-sm text-gray-500">
+                      ({game.matches.length} matches)
+                    </span>
+                  </div>
+                  <span className="text-sm text-gray-500">
+                    {format(new Date(game.timestamp), 'MMM d, yyyy')}
+                  </span>
+                </div>
+              </Link>
             ))}
           </div>
         )}
