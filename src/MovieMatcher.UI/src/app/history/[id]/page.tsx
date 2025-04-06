@@ -57,14 +57,14 @@ export default function GameHistoryPage() {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <Card className="w-full max-w-4xl mx-auto">
-        <CardHeader className="flex flex-row items-center justify-between">
+    <div className="container mx-auto p-4 min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-5rem)]">
+      <Card className="w-full max-w-4xl mx-auto h-[calc(100vh-6rem)] sm:h-[calc(100vh-7rem)] md:h-[calc(100vh-8rem)]">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <div>
-            <CardTitle className="text-2xl font-bold">
+            <CardTitle className="text-xl sm:text-2xl font-bold">
               Game #{params.id}
             </CardTitle>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-xs sm:text-sm text-gray-500 mt-1">
               {format(new Date(game.timestamp), "PPP")}
             </p>
           </div>
@@ -74,10 +74,10 @@ export default function GameHistoryPage() {
             </Link>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Matched Movies</h2>
-            <div className="space-y-4">
+        <CardContent className="h-[calc(100%-4rem)] sm:h-[calc(100%-5rem)] pt-0 overflow-hidden">
+          <div className="flex flex-col h-full">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4">Matched Movies</h2>
+            <div className="flex-1 overflow-y-auto space-y-3 pr-2">
               {game.matches.length === 0 ? (
                 <p className="text-gray-500 text-center">
                   No matches in this game
