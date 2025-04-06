@@ -3,7 +3,6 @@ import { MovieDto } from "@/types";
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import { format, parseISO } from "date-fns";
 import {
   Tooltip,
@@ -16,26 +15,15 @@ import {
   DialogContent,
   DialogTrigger,
   DialogTitle,
-  DialogClose,
 } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { ReadMoreText } from "@/components/ReadMoreText";
 
 interface MovieDetailsProps {
   movie: MovieDto;
 }
 
 const MovieDetails: React.FC<MovieDetailsProps> = ({ movie }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  useEffect(() => {
-    // Reset expanded state when movie changes
-    setIsExpanded(false);
-  }, [movie.id]); // Reset when movie ID changes
-
-  const toggleOverview = () => {
-    setIsExpanded(!isExpanded);
-  };
-
   return (
     <Card className="h-full border rounded-lg shadow-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 overflow-y-auto">
       <CardContent className="p-4 h-full">
@@ -96,15 +84,8 @@ const MovieDetails: React.FC<MovieDetailsProps> = ({ movie }) => {
         )}
 
         {/* Overview */}
-        <div className="mt-3 text-gray-800 dark:text-gray-300 text-sm leading-relaxed text-center overflow-y-auto">
-          <p className={isExpanded ? "" : "line-clamp-3"}>
-            {movie.overview}
-          </p>
-          {movie.overview && movie.overview.length > 100 && (
-            <Button onClick={toggleOverview} variant="link" className="text-blue-500 hover:underline">
-              {isExpanded ? "Read less" : "Read more"}
-            </Button>
-          )}
+        <div className="mt-3 text-gray-800 dark:text-gray-300">
+          <ReadMoreText text={movie.overview} />
         </div>
 
         {/* Movie Metadata */}

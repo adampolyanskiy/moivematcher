@@ -2,12 +2,16 @@
 import { MovieMatch } from "@/services/gameStorageService";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
+import { useState } from "react";
+import { ReadMoreText } from "@/components/ReadMoreText";
 
 interface MovieListItemProps {
   movie: MovieMatch;
 }
 
 const MovieListItem: React.FC<MovieListItemProps> = ({ movie }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   return (
     <Card className="w-full hover:shadow-lg transition-shadow">
       <CardContent className="p-4 flex gap-4">
@@ -27,9 +31,9 @@ const MovieListItem: React.FC<MovieListItemProps> = ({ movie }) => {
           <h3 className="text-lg font-semibold">
             {movie.title}
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-3 mt-2">
-            {movie.overview}
-          </p>
+          <div className="relative">
+            <ReadMoreText text={movie.overview} amountOfWords={36} />
+          </div>
         </div>
       </CardContent>
     </Card>
