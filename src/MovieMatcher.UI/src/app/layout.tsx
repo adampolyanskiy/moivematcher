@@ -4,6 +4,7 @@ import "@/styles/global.css";
 import { ModeToggle } from "@/components/ModeToggle";
 import { Toaster } from "sonner";
 import { Suspense } from "react";
+import { Spotlight } from "@/components/ui/spotlight-new";
 
 export const metadata: Metadata = {
   title: "Movie Matcher",
@@ -26,14 +27,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <div className="fixed inset-0 -z-10 pointer-events-none">
-              <div className="w-full h-full bg-gradient-to-r from-sky-400 via-sky-500 to-indigo-600 dark:from-sky-600 dark:via-sky-700 dark:to-indigo-800 blur-3xl"></div>
-            </div>
-            <header className="w-full h-14 flex justify-end items-center px-6 py-2">
-              <ModeToggle />
-            </header>
-
-            <main className="h-full">
+            <main className="min-h-screen">
               <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
             </main>
             <Toaster />
