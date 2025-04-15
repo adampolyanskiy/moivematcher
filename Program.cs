@@ -29,7 +29,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
         policy => policy
-            .WithOrigins(builder.Configuration["AllowedHosts"])
+            .WithOrigins(builder.Configuration["AllowedOrigins"])
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());

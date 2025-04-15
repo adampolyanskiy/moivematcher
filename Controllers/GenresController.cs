@@ -6,7 +6,7 @@ using MovieMatcher.Backend.DTOs;
 namespace MovieMatcher.Backend.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public class GenresController(IMovieService movieService, IMapper mapper) : ControllerBase
 {
     /// <summary>
