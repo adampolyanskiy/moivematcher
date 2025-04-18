@@ -27,9 +27,11 @@ builder.Services.AddSingleton<IMovieService, TmdbApiService>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",
+    options.AddPolicy("AllowHost",
         policy => policy
-            .WithOrigins(builder.Configuration["AllowedOrigins"])
+            .WithOrigins(
+                "https://moviematcher.io",
+                "https://www.moviematcher.io")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
@@ -37,7 +39,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-app.UseCors("AllowAll");
+app.UseCors("AllowHost");
 
 app.MapHub<MovieMatcherHub>("/movieMatcherHub");
 
