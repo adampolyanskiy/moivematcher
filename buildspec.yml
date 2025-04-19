@@ -10,13 +10,13 @@ phases:
       - aws s3 cp s3://elasticbeanstalk-eu-north-1-117572039742/.platform/ .platform/ --recursive
   build:
     commands:
-      - dotnet publish -c Release -o output
-      - cp -r .ebextensions output/
-      - cp -r .platform output/
-  post_build:
-    commands:
-      - cd output
-      - zip -r ../build.zip .
+      - dotnet restore
+      - dotnet publish -c Release -o published
+      - mkdir -p published/.ebextensions
+      - cp -r .ebextensions/* published/.ebextensions/
+      - mkdir -p published/.platform
+      - cp -r .platform/* published/.platform/
 artifacts:
   files:
-    - build.zip
+    - '**/*'
+  base-directory: 'published'
