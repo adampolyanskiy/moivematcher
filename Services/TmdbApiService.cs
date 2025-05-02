@@ -92,6 +92,7 @@ public class TmdbApiService : IMovieService
                     .WhereReleaseDateIsBefore(endDate)
                     .IncludeAdultMovies(parameters.IncludeAdult)
                     .IncludeWithAnyOfGenre(parameters.GenreIds)
+                    .WhereLanguageIs(parameters.Language)
                     .Query(parameters.Page);
             }
             else

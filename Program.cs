@@ -31,7 +31,8 @@ builder.Services.AddCors(options =>
         policy => policy
             .WithOrigins(
                 "https://moviematcher.io",
-                "https://www.moviematcher.io")
+                "https://www.moviematcher.io",
+                "http://localhost:3000")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());

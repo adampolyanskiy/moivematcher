@@ -7,4 +7,5 @@ public class SearchMoviesParams
     public int EndYear { get; init; }
     public required IEnumerable<int> GenreIds { get; init; }
     public int Page { get; init; }
+    public string Language { get; init; } = "en";
 }

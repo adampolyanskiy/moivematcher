@@ -44,7 +44,8 @@ public class MovieMatcherHub(
                 StartYear = session.Options.StartYear,
                 EndYear = session.Options.EndYear,
                 GenreIds = session.Options.GenreIds,
-                Page = session.CurrentPage
+                Page = session.CurrentPage,
+                Language = session.Options.Language
             });
 
         logger.LogDebug("Session {SessionId} has {MovieCount} movies queued for swiping", sessionId,
@@ -113,7 +114,8 @@ public class MovieMatcherHub(
                 StartYear = session.Options.StartYear,
                 EndYear = session.Options.EndYear,
                 GenreIds = session.Options.GenreIds,
-                Page = page
+                Page = page,
+                Language = session.Options.Language
             });
 
             session.TotalPages = result.TotalPages;
